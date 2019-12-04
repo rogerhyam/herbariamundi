@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { fetchSpecimens } from "../redux/actions/fetchSpecimensActions";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
-import Card from "react-bootstrap/Card";
+import SpecimenCard from "./SpecimenCard";
 
 class SpecimenBrowser extends Component {
   constructor(props) {
@@ -18,26 +18,7 @@ class SpecimenBrowser extends Component {
         </p>
         <Container fluid={true}>
           {this.props.items.map(sp => (
-            <Card
-              key={sp.cetaf_id}
-              style={{
-                width: "150px", // fixed pixel width matched to the size the thumbnails are
-                height: "20rem", // fixed height or the float left won't work
-                float: "left",
-                margin: "0.2rem"
-              }}
-            >
-              <Card.Img variant="top" src={sp.thumbnail_uri} />
-              <Card.Body style={{ padding: 5 }}>
-                <Card.Text
-                  style={{
-                    fontSize: "0.75rem"
-                  }}
-                >
-                  <span dangerouslySetInnerHTML={{ __html: sp.title }}></span>
-                </Card.Text>
-              </Card.Body>
-            </Card>
+            <SpecimenCard specimen={sp} key={sp.cetaf_id} />
           ))}
         </Container>
       </Fragment>

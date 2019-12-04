@@ -3,7 +3,7 @@ require_once('config.php');
 $result = $mysqli->query("SELECT barcode 
 FROM image_archive.derived_images 
 where image_type = 'JPG'
-limit 100
+limit 10
 offset " . rand(0,100000));
 
 $rows = $result->fetch_all(MYSQLI_ASSOC);

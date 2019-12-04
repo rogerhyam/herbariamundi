@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import Navbar from "react-bootstrap/NavBar";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
@@ -8,13 +8,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import CardGroup from "react-bootstrap/CardGroup";
-import Card from "react-bootstrap/Card";
 import SpecimenBrowser from "./SpecimenBrowser";
 import { Provider } from "react-redux";
 import store from "../redux/store";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
+import MyHerbarium from "./MyHerbarium";
+import Workbench from "./Workbench";
 
 /**
  * Root component for the application
@@ -53,39 +53,13 @@ class HerbariaMundi extends Component {
             </Form>
           </Navbar.Collapse>
         </Navbar>
-
-        <Tabs defaultActiveKey="specimens" id="uncontrolled-tab-example">
+        <Tabs defaultActiveKey="specimens" id="mainTabs">
           <Tab eventKey="specimens" title="Specimens">
             <Container fluid={true} style={{ padding: 0 }}>
               <Row noGutters={true}>
                 <Col md={2}>
                   <p> </p>
-                  <ul>
-                    <li>
-                      Temp Specimens
-                      <ul>
-                        <li>2019-11-10</li>
-                        <li>2019-10-22</li>
-                        <li>2019-09-09</li>
-                      </ul>
-                    </li>
-                    <li>
-                      Cabinate 2
-                      <ul>
-                        <li>Folder 1</li>
-                        <li>Folder 2</li>
-                        <li>Folder 3</li>
-                      </ul>
-                    </li>
-                    <li>
-                      Cabinate 1
-                      <ul>
-                        <li>Folder 1</li>
-                        <li>Folder 2</li>
-                        <li>Folder 3</li>
-                      </ul>
-                    </li>
-                  </ul>
+                  <MyHerbarium />
                 </Col>
                 <Col style={{ padding: "1em" }}>
                   <SpecimenBrowser />
@@ -93,8 +67,8 @@ class HerbariaMundi extends Component {
               </Row>
             </Container>
           </Tab>
-          <Tab eventKey="workbench" title="Workbench">
-            other text
+          <Tab eventKey="workbench" title="Workbench" id="Workbench01">
+            <Workbench />
           </Tab>
           <Tab eventKey="compare" title="Compare">
             Compare two specimens side by side
