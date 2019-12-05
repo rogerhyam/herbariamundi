@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import mirador from "mirador";
+import { connect } from "react-redux";
 
 class Workbench extends Component {
   constructor(props) {
@@ -7,20 +8,21 @@ class Workbench extends Component {
     this.state = {};
   }
 
+  // our private list of manifests
+  manifests = [];
+
   initConfig = {
     id: "my-mirador",
-    manifests: {
-      "https://iiif.lib.harvard.edu/manifests/drs:48309543": {
-        provider: "Harvard University"
-      }
+    window: {
+      allowClose: true,
+      sideBarOpenByDefault: false
     },
-    windows: [
-      {
-        loadedManifest: "https://iiif.lib.harvard.edu/manifests/drs:48309543",
-        canvasIndex: 2,
-        thumbnailNavigationPosition: "far-bottom"
-      }
-    ]
+    workspace: {
+      type: "mosaic"
+    },
+    workspaceControlPanel: {
+      enabled: true
+    }
   };
 
   wrapperStyle = {
@@ -29,14 +31,34 @@ class Workbench extends Component {
   };
 
   componentDidMount() {
-    // const { t, plugins } = this.props;
-    mirador.viewer(this.initConfig, []);
-
+    this.miradorInstance = mirador.viewer(this.initConfig, []);
     // nasty dynamic resizing
     this.setMiradorHeight();
     window.onresize = e => {
       this.setMiradorHeight();
     };
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const { manifests } = nextProps;
+    const { store, actions } = this.miradorInstance;
+    console.log(manifests);
+
+    const manifestsToAdd = manifests.filter(id => {
+      return !this.manifests.includes(id);
+    });
+
+    manifestsToAdd.map(id => {
+      store.dispatch(actions.fetchManifest(id));
+      this.manifests.push(id);
+      return id;
+    });
+
+    console.log(store.getState());
+    console.log(actions);
+
+    // we never rerender as we don't want to load mirador again
+    return false;
   }
 
   setMiradorHeight = () => {
@@ -45,7 +67,6 @@ class Workbench extends Component {
     // FIXME banner height is 0 when first called so we default to 100 could be better
     if (bannerHeight === 0) bannerHeight = 100;
     wrap.style.height = window.innerHeight - bannerHeight + "px";
-    console.log(wrap.style.height);
   };
 
   render() {
@@ -57,4 +78,14 @@ class Workbench extends Component {
   }
 }
 
-export default Workbench;
+//export default TextList;
+const mapStateToProps = state => {
+  const manifests = [];
+  state.specimens.workbench.specimenIds.map(id => {
+    manifests.push(state.specimens.byId[id].iiif_manifest_uri);
+    return id;
+  });
+  return { manifests };
+};
+export default connect(mapStateToProps, {})(Workbench);
+//export default Workbench;

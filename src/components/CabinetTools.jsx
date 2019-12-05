@@ -1,7 +1,7 @@
 import React from "react";
 import Cabinet from "./Cabinet";
 
-class CabinetTemp extends Cabinet {
+class CabinetTools extends Cabinet {
   constructor(props) {
     super(props);
     this.state = {};
@@ -22,4 +22,4 @@ class CabinetTemp extends Cabinet {
   };
 }
 
-export default CabinetTemp;
+export default CabinetTools;

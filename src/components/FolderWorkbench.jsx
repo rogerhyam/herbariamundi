@@ -1,8 +1,10 @@
 import React from "react";
-import CabinetDropTarget from "./CabinetDropTarget";
+import Folder from "./Folder";
 import DraggableTypes from "./DraggableTypes";
+import { connect } from "react-redux";
+import { addSpecimen } from "../redux/actions/workspaceActions";
 
-class CabinetDynamic extends CabinetDropTarget {
+class FolderWorkbench extends Folder {
   constructor(props) {
     super(props);
     this.state = {};
@@ -29,40 +31,43 @@ class CabinetDynamic extends CabinetDropTarget {
     this.setState({ style: this.styleBlurred });
 
     switch (e.dataTransfer.getData("type")) {
-      case DraggableTypes.FOLDER:
-        console.log("Folder dropped");
-        // FIXME - Add specimen to folder!!
-        break;
-      case DraggableTypes.CABINET:
-        console.log("Cabinet dropped");
-        // FIXME - Add specimen to folder!!
+      case DraggableTypes.SPECIMEN:
+        console.log("specimen dropped on workbench");
+        this.props.addSpecimen(e.dataTransfer.getData("specimenId"));
         break;
       default:
+        // FIXME - nice modal dialogue here
+        alert("You can't drop a " + e.dataTransfer.getData("type") + " here.");
         return false;
     }
   };
 
   render() {
+    const { specimens } = this.props;
     return (
       <li
         style={this.state.style}
-        draggable={true}
         onDragEnter={e => this.handleDragEnter(e)}
         onDragLeave={e => this.handleDragLeave(e)}
         onDrop={e => this.handleDrop(e)}
         onDragOver={e => this.handleDragOver(e)}
       >
-        <span role="img" aria-label="Search">
-          🗄️
-        </span>
-        {this.props.title} {this.getFolderList()}{" "}
+        <span role="img" aria-label="Microscope">
+          🔬
+        </span>{" "}
+        Workbench ({specimens.length})
       </li>
     );
   }
-  getFolderList = () => {
-    if (this.props.children.length < 1) return "";
-    return <ul style={this.folderListStyle}>{this.props.children}</ul>;
-  };
 }
 
-export default CabinetDynamic;
+//export default TextList;
+const mapStateToProps = state => {
+  const specimens = [];
+  state.specimens.workbench.specimenIds.map(id => {
+    specimens.push(state.specimens.byId[id]);
+    return id;
+  });
+  return { specimens };
+};
+export default connect(mapStateToProps, { addSpecimen })(FolderWorkbench);

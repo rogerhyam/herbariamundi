@@ -15,6 +15,7 @@ import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import MyHerbarium from "./MyHerbarium";
 import Workbench from "./Workbench";
+import SearchForm from "./SearchForm";
 
 /**
  * Root component for the application
@@ -62,6 +63,7 @@ class HerbariaMundi extends Component {
                   <MyHerbarium />
                 </Col>
                 <Col style={{ padding: "1em" }}>
+                  <SearchForm />
                   <SpecimenBrowser />
                 </Col>
               </Row>

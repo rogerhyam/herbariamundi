@@ -6,16 +6,33 @@ class Cabinet extends Component {
     this.state = {};
   }
 
+  folderListStyle = {
+    listStyleType: "none",
+    marginLeft: "1rem",
+    padding: 0
+  };
+
+  styleBlurred = {
+    border: "solid 1px white"
+  };
+
+  styleFocussed = {
+    border: "solid 1px gray"
+  };
+
   render() {
     return (
       <li>
-        🗄️ {this.props.title} {this.getFolderList()}{" "}
+        <span role="img" aria-label="Search">
+          🗄️
+        </span>{" "}
+        {this.props.title} {this.getFolderList()}{" "}
       </li>
     );
   }
   getFolderList = () => {
     if (this.props.children.length < 1) return "";
-    return <ul>{this.props.children}</ul>;
+    return <ul style={this.folderListStyle}>{this.props.children}</ul>;
   };
 }
 

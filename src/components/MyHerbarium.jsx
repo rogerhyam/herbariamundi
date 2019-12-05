@@ -1,6 +1,11 @@
 import React, { Component } from "react";
 import CabinetTemp from "./CabinetTemp";
 import CabinetDynamic from "./CabinetDynamic";
+import FolderSearch from "./FolderSearch";
+import FolderWaste from "./FolderWaste";
+import FolderWorkbench from "./FolderWorkbench";
+import CabinetTools from "./CabinetTools";
+
 import Folder from "./Folder";
 
 class MyHerbarium extends Component {
@@ -8,10 +13,22 @@ class MyHerbarium extends Component {
     super(props);
     this.state = {};
   }
+
+  cabinetListStyle = {
+    listStyleType: "none",
+    margin: "1rem",
+    padding: 0
+  };
   render() {
     return (
-      <ul>
-        <CabinetTemp title="Temp Specimens">
+      <ul style={this.cabinetListStyle}>
+        <CabinetTools title="Tools">
+          <FolderSearch />
+          <FolderWorkbench />
+          <FolderWaste />
+        </CabinetTools>
+
+        <CabinetTemp title="Temporary">
           <Folder title="2019-11-10" />
           <Folder title="2019-10-22" />
           <Folder title="2019-09-09" />

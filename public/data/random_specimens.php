@@ -25,9 +25,11 @@ while ($row = $result->fetch_assoc()) {
     $specimen->title = $row['ScientificName'] . ' specimen ' . $row['CatalogNumber'];
     $specimen->iiif_manifest_uri = 'https://iiif.rbge.org.uk/herb/iiif/'.  $row['CatalogNumber'] .'/manifest';
     $specimen->thumbnail_uri = 'https://iiif.rbge.org.uk/herb/iiif/'. $row['CatalogNumber'] .'/full/150,/0/default.jpg';
-    $out[] = $specimen;
+    $out[$row['GloballyUniqueIdentifier']] = $specimen;
 
 }
+//print_r($out);
+
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
 echo JSON_encode($out);

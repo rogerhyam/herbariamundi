@@ -15,6 +15,17 @@ class Folder extends Component {
     backgroundColor: "gray"
   };
 
+  buttonStyle = {
+    backgroundColor: "transparent",
+    border: "none",
+    cursor: "pointer",
+    textDecoration: "none",
+    display: "inline",
+    margin: 0,
+    padding: 0,
+    outline: "none"
+  };
+
   handleDragEnter = e => {
     this.setState({ style: this.styleFocussed });
   };
@@ -69,7 +80,10 @@ class Folder extends Component {
         onDrop={e => this.handleDrop(e)}
         onDragOver={e => this.handleDragOver(e)}
       >
-        📁 {this.props.title}
+        <span role="img" aria-label="Folder">
+          📁
+        </span>{" "}
+        {this.props.title}
       </li>
     );
   }

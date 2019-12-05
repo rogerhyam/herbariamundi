@@ -1,6 +1,78 @@
-import { combineReducers } from "redux";
-import fetchSpecimensReducer from "./fetchSpecimensReducer";
+import ActionTypes from "../actions/ActionTypes";
 
-export default combineReducers({
-  specimens: fetchSpecimensReducer
-});
+// building this structure before was start
+// saves lots of checking for things being defined or not
+// later
+const initialState = {
+  specimens: {
+    byId: {},
+    workbench: {
+      specimenIds: []
+    },
+    browser: {
+      loading: false,
+      error: null,
+      title: null,
+      description: null,
+      specimenIds: []
+    }
+  }
+};
+
+const rootReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case ActionTypes.FETCH_SPECIMENS_BEGIN:
+      return {
+        ...state,
+        specimens: {
+          ...state.specimens,
+          browser: {
+            ...state.specimens.browser,
+            loading: true,
+            error: null
+          }
+        }
+      };
+    case ActionTypes.FETCH_SPECIMENS_SUCCESS:
+      return {
+        ...state,
+        specimens: {
+          ...state.specimens,
+          loading: false,
+          byId: { ...state.specimens.byId, ...action.payload.specimens },
+          browser: {
+            specimenIds: Object.keys(action.payload.specimens),
+            loading: false,
+            error: null
+          }
+        }
+      };
+    case ActionTypes.FETCH_SPECIMENS_FAILURE:
+      return {
+        ...state,
+        specimens: {
+          ...state.specimens,
+          browser: {
+            ...state.specimens.browser,
+            loading: false,
+            error: action.payload.error
+          }
+        }
+      };
+    case ActionTypes.WORKSPACE_ADD_SPECIMEN:
+      state.specimens.workbench.specimenIds.push(action.specimen);
+      // de duplicate
+      state.specimens.workbench.specimenIds = [
+        ...new Set(state.specimens.workbench.specimenIds)
+      ];
+      return { ...state };
+    default:
+      return state;
+  }
+};
+export default rootReducer;
+
+// export default combineReducers({
+//   specimens: fetchSpecimensReducer,
+//   workspace: workspaceReducer
+// });

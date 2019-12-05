@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { fetchSpecimens } from "../redux/actions/fetchSpecimensActions";
-import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import SpecimenCard from "./SpecimenCard";
 
@@ -13,12 +12,9 @@ class SpecimenBrowser extends Component {
   render() {
     return (
       <Fragment>
-        <p>
-          <Button onClick={() => this.props.fetchSpecimens()}>Refresh</Button>
-        </p>
         <Container fluid={true}>
-          {this.props.items.map(sp => (
-            <SpecimenCard specimen={sp} key={sp.cetaf_id} />
+          {this.props.specimens.map(sp => (
+            <SpecimenCard specimen={sp} key={sp.cetaf_id} mini={false} />
           ))}
         </Container>
       </Fragment>
@@ -28,13 +24,12 @@ class SpecimenBrowser extends Component {
 
 //export default TextList;
 const mapStateToProps = state => {
-  // should appear as an array in the properties.
-  if ("specimens" in state && "items" in state.specimens) {
-    return { items: state.specimens.items };
-  } else {
-    // items not defined so give them an empty one
-    return { items: [] };
-  }
+  const specimens = [];
+  state.specimens.browser.specimenIds.map(id => {
+    specimens.push(state.specimens.byId[id]);
+    return id;
+  });
+  return { specimens };
 };
 
 // wrap the big boy in a connector

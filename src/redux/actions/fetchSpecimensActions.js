@@ -1,8 +1,4 @@
-import {
-  FETCH_SPECIMENS_BEGIN,
-  FETCH_SPECIMENS_SUCCESS,
-  FETCH_SPECIMENS_FAILURE
-} from "./actionTypes";
+import ActionTypes from "./ActionTypes";
 
 export function fetchSpecimens() {
   return dispatch => {
@@ -19,16 +15,16 @@ export function fetchSpecimens() {
 }
 
 export const fetchSpecimensBegin = () => ({
-  type: FETCH_SPECIMENS_BEGIN
+  type: ActionTypes.FETCH_SPECIMENS_BEGIN
 });
 
-export const fetchSpecimensSuccess = products => ({
-  type: FETCH_SPECIMENS_SUCCESS,
-  payload: { products }
+export const fetchSpecimensSuccess = specimens => ({
+  type: ActionTypes.FETCH_SPECIMENS_SUCCESS,
+  payload: { specimens }
 });
 
 export const fetchSpecimensFailure = error => ({
-  type: FETCH_SPECIMENS_FAILURE,
+  type: ActionTypes.FETCH_SPECIMENS_FAILURE,
   payload: { error }
 });
 

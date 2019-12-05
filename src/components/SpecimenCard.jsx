@@ -44,10 +44,6 @@ class SpecimenCard extends Component {
       </Card>
     );
   }
-  getFolderList = () => {
-    if (this.props.children.length < 1) return "";
-    return <ul>{this.props.children}</ul>;
-  };
 }
 
 export default SpecimenCard;
