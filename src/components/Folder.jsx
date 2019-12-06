@@ -23,7 +23,9 @@ class Folder extends Component {
     display: "inline",
     margin: 0,
     padding: 0,
-    outline: "none"
+    outline: "none",
+    textAlign: "left",
+    whiteSpace: "nowrap"
   };
 
   handleDragEnter = e => {

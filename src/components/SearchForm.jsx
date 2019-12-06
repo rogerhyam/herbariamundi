@@ -6,7 +6,7 @@ class SearchForm extends Component {
     this.state = {};
   }
   render() {
-    return <div>I am the search form.</div>;
+    return null; //<div>I am the search form.</div>;
   }
 }
 

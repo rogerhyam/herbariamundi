@@ -13,9 +13,18 @@ const initialState = {
       loading: false,
       error: null,
       title: null,
+      associatedFolder: null,
       description: null,
       specimenIds: []
     }
+  },
+  folders: {
+    byId: {}, // dictionary for lookup of objects
+    focussedFolderId: null
+  },
+  cabinets: {
+    byId: {}, // dictionary for lookup of objects
+    cabinetIds: [] // for the ordered list displayed
   }
 };
 
@@ -66,6 +75,12 @@ const rootReducer = (state = initialState, action) => {
         ...new Set(state.specimens.workbench.specimenIds)
       ];
       return { ...state };
+
+    case ActionTypes.SHOW_SPECIMENS:
+      state.specimens.browser = { ...state.specimens.browser, ...action };
+      delete state.specimens.browser.type;
+      return { ...state };
+
     default:
       return state;
   }

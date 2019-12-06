@@ -27,18 +27,17 @@ class MyHerbarium extends Component {
           <FolderWorkbench />
           <FolderWaste />
         </CabinetTools>
-
         <CabinetTemp title="Temporary">
           <Folder title="2019-11-10" />
           <Folder title="2019-10-22" />
           <Folder title="2019-09-09" />
         </CabinetTemp>
-        <CabinetDynamic title="Cabinate 2">
+        <CabinetDynamic title="Cabinet 2">
           <Folder title="Folder 1" />
           <Folder title="Folder 2" />
           <Folder title="Folder 3" />
         </CabinetDynamic>
-        <CabinetDynamic title="Cabinate 1">
+        <CabinetDynamic title="Cabinet 1">
           <Folder title="Folder 1" />
           <Folder title="Folder 2" />
           <Folder title="Folder 3" />

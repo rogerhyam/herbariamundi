@@ -3,6 +3,7 @@ import Folder from "./Folder";
 import DraggableTypes from "./DraggableTypes";
 import { connect } from "react-redux";
 import { addSpecimen } from "../redux/actions/workspaceActions";
+import { showSpecimens } from "../redux/actions/showSpecimensAction";
 
 class FolderWorkbench extends Folder {
   constructor(props) {
@@ -52,10 +53,23 @@ class FolderWorkbench extends Folder {
         onDrop={e => this.handleDrop(e)}
         onDragOver={e => this.handleDragOver(e)}
       >
-        <span role="img" aria-label="Microscope">
-          🔬
-        </span>{" "}
-        Workbench ({specimens.length})
+        <button
+          type="button"
+          style={this.buttonStyle}
+          onClick={() =>
+            this.props.showSpecimens(
+              specimens.map(sp => sp.cetaf_id),
+              "Workbench",
+              "Workbench",
+              "These are specimens available in the workbench"
+            )
+          }
+        >
+          <span role="img" aria-label="Microscope">
+            🔬
+          </span>{" "}
+          Workbench ({specimens.length})
+        </button>
       </li>
     );
   }
@@ -70,4 +84,6 @@ const mapStateToProps = state => {
   });
   return { specimens };
 };
-export default connect(mapStateToProps, { addSpecimen })(FolderWorkbench);
+export default connect(mapStateToProps, { addSpecimen, showSpecimens })(
+  FolderWorkbench
+);
