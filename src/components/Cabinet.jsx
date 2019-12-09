@@ -1,6 +1,7 @@
 import React, { Component } from "react";
+import MyHerbariumPart from "./MyHerbariumPart";
 
-class Cabinet extends Component {
+class Cabinet extends MyHerbariumPart {
   constructor(props) {
     super(props);
     this.state = {};
@@ -31,7 +32,7 @@ class Cabinet extends Component {
     );
   }
   getFolderList = () => {
-    if (this.props.children.length < 1) return "";
+    if (this.props.children && this.props.children.length < 1) return "";
     return <ul style={this.folderListStyle}>{this.props.children}</ul>;
   };
 }

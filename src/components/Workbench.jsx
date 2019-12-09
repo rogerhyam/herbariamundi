@@ -78,7 +78,6 @@ class Workbench extends Component {
   }
 }
 
-//export default TextList;
 const mapStateToProps = state => {
   const manifests = [];
   state.specimens.workbench.specimenIds.map(id => {

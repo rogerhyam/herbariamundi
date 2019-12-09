@@ -1,8 +1,12 @@
-import React from "react";
-import CabinetDropTarget from "./CabinetDropTarget";
+import React, { Fragment } from "react";
+import CabinetOpenable from "./CabinetOpenable";
 import DraggableTypes from "./DraggableTypes";
+import { connect } from "react-redux";
+import { setFocus, FocusTargetTypes } from "../redux/actions/setFocusAction";
+import FolderSpecimens from "./FolderSpecimens";
+import FolderNew from "./FolderNew";
 
-class CabinetDynamic extends CabinetDropTarget {
+class CabinetDynamic extends CabinetOpenable {
   constructor(props) {
     super(props);
     this.state = {};
@@ -52,17 +56,60 @@ class CabinetDynamic extends CabinetDropTarget {
         onDrop={e => this.handleDrop(e)}
         onDragOver={e => this.handleDragOver(e)}
       >
-        <span role="img" aria-label="Search">
-          🗄️
-        </span>
-        {this.props.title} {this.getFolderList()}{" "}
+        <button
+          type="button"
+          style={this.buttonStyle}
+          onClick={this.handleClicked}
+        >
+          <span role="img" aria-label="Search">
+            🗄️
+          </span>
+          {this.props.title} ({this.props.folders.length})
+        </button>
+        {!this.props.focussed || "**"}
+        {this.getFolderList()}
       </li>
     );
   }
+  handleClicked = e => {
+    this.props.setFocus(FocusTargetTypes.CABINET, this.props.id);
+    this.toggleOpenClose();
+  };
+
   getFolderList = () => {
-    if (this.props.children.length < 1) return "";
-    return <ul style={this.folderListStyle}>{this.props.children}</ul>;
+    if (!this.isOpen()) return "";
+    return (
+      <ul style={this.folderListStyle}>
+        {this.props.folders.map(f => (
+          <FolderSpecimens key={f.id} id={f.id} title={f.title} />
+        ))}
+        <FolderNew />
+      </ul>
+    );
   };
 }
 
-export default CabinetDynamic;
+const mapStateToProps = (state, ownProps) => {
+  const { cabinets, folders } = state;
+  const thisCabinet = cabinets.byId[ownProps.id];
+  const myFolders = [];
+
+  // if we are focussed in the state then we are focussed.
+  let focussed = false;
+  let opened = false;
+  if (state.cabinets.focussedCabinetId == ownProps.id) {
+    focussed = true;
+    opened = true;
+  }
+
+  thisCabinet.folderIds.map(fid => {
+    // we are always opened if we contain the focussed folder?
+    if (state.folders.focussedFolderId == fid) opened = true;
+    myFolders.push(folders.byId[fid]);
+  });
+
+  return { folders: myFolders, focussed, opened };
+};
+
+export default connect(mapStateToProps, { setFocus })(CabinetDynamic);
+//export default CabinetDynamic;

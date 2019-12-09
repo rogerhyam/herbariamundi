@@ -1,9 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
-import Folder from "./Folder";
+import MyHerbariumPart from "./MyHerbariumPart";
 import { fetchSpecimens } from "../redux/actions/fetchSpecimensActions";
 
-class FolderSearch extends Folder {
+class FolderSearch extends MyHerbariumPart {
   constructor(props) {
     super(props);
     this.state = {};
