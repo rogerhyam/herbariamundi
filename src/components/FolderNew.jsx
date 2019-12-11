@@ -1,5 +1,7 @@
 import React from "react";
 import Folder from "./Folder";
+import { connect } from "react-redux";
+import { newFolder } from "../redux/actions/folderActions";
 
 class FolderNew extends Folder {
   constructor(props) {
@@ -17,7 +19,7 @@ class FolderNew extends Folder {
             fontStyle: "italic",
             color: "gray"
           }}
-          onClick={this.handleClicked}
+          onClick={e => this.props.newFolder(this.props.cabinetId)}
         >
           <span role="img" aria-label="New">
             ✨
@@ -28,5 +30,5 @@ class FolderNew extends Folder {
     );
   }
 }
-
-export default FolderNew;
+export default connect(null, { newFolder })(FolderNew);
+//export default FolderNew;

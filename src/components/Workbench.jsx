@@ -42,8 +42,6 @@ class Workbench extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     const { manifests } = nextProps;
     const { store, actions } = this.miradorInstance;
-    console.log(manifests);
-
     const manifestsToAdd = manifests.filter(id => {
       return !this.manifests.includes(id);
     });
@@ -53,9 +51,6 @@ class Workbench extends Component {
       this.manifests.push(id);
       return id;
     });
-
-    console.log(store.getState());
-    console.log(actions);
 
     // we never rerender as we don't want to load mirador again
     return false;

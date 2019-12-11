@@ -4,13 +4,13 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { connect } from "react-redux";
 import {
-  editCabinetCancel,
-  editCabinetSave
-} from "../redux/actions/cabinetActions";
+  editFolderCancel,
+  editFolderSave
+} from "../redux/actions/folderActions";
 
 import CabinetFolderEditForm from "./CabinetFolderEditForm";
 
-class CabinetEditForm extends CabinetFolderEditForm {
+class FolderEditForm extends CabinetFolderEditForm {
   constructor(props) {
     super(props);
     this.state = { description: "", title: "" };
@@ -19,7 +19,8 @@ class CabinetEditForm extends CabinetFolderEditForm {
   handleSubmit = e => {
     e.preventDefault();
     console.log(this.state);
-    this.props.editCabinetSave(
+    this.props.editFolderSave(
+      this.props.folderId,
       this.props.cabinetId,
       this.state.title,
       this.state.description
@@ -28,14 +29,14 @@ class CabinetEditForm extends CabinetFolderEditForm {
   };
 
   render() {
-    let title = "Edit Cabinet";
-    if (this.props.cabinetId === "_NEW_") title = "New Cabinet";
+    let title = "Edit Folder";
+    if (this.props.folderId === "_NEW_") title = "New Folder";
 
     return (
       <Form>
         <Modal
-          show={this.props.cabinetId ? true : false}
-          onHide={this.props.editCabinetCancel}
+          show={this.props.folderId ? true : false}
+          onHide={this.props.editFolderCancel}
         >
           <Modal.Header closeButton>
             <Modal.Title>{title}</Modal.Title>
@@ -63,12 +64,11 @@ class CabinetEditForm extends CabinetFolderEditForm {
               />
             </Form.Group>
             <Form.Text className="text-muted">
-              A longer description of the cabinet's contents. Max 500
-              characters.
+              A longer description of the folder's contents. Max 500 characters.
             </Form.Text>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={this.props.editCabinetCancel}>
+            <Button variant="secondary" onClick={this.props.editFolderCancel}>
               Close
             </Button>
             <Button variant="primary" type="submit" onClick={this.handleSubmit}>
@@ -82,9 +82,12 @@ class CabinetEditForm extends CabinetFolderEditForm {
 }
 
 const mapStateToProps = state => {
-  return { cabinetId: state.cabinets.editingCabinetId };
+  return {
+    folderId: state.folders.editingFolderId,
+    cabinetId: state.folders.newFolderInCabinetId
+  };
 };
-export default connect(mapStateToProps, { editCabinetCancel, editCabinetSave })(
-  CabinetEditForm
+export default connect(mapStateToProps, { editFolderCancel, editFolderSave })(
+  FolderEditForm
 );
 //export default CabinetEditForm;

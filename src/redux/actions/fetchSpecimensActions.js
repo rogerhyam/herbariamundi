@@ -3,7 +3,11 @@ import ActionTypes from "./ActionTypes";
 export function fetchSpecimens() {
   return dispatch => {
     dispatch(fetchSpecimensBegin());
-    return fetch("http://localhost:3100/data/random_specimens.php")
+    return fetch("/random_specimens.php", {
+      headers: {
+        Accept: "application/json"
+      }
+    })
       .then(handleErrors)
       .then(res => res.json())
       .then(json => {

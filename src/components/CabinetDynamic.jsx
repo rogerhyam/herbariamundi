@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import CabinetOpenable from "./CabinetOpenable";
 import DraggableTypes from "./DraggableTypes";
 import { connect } from "react-redux";
@@ -46,6 +46,14 @@ class CabinetDynamic extends CabinetOpenable {
     }
   };
 
+  handleDragStart = e => {
+    console.log("cabinet drag start");
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("cabinetId", this.props.id);
+    e.dataTransfer.setData("type", DraggableTypes.CABINET);
+    e.dataTransfer.setDragImage(e.target, 2, 2);
+  };
+
   render() {
     return (
       <li
@@ -55,6 +63,7 @@ class CabinetDynamic extends CabinetOpenable {
         onDragLeave={e => this.handleDragLeave(e)}
         onDrop={e => this.handleDrop(e)}
         onDragOver={e => this.handleDragOver(e)}
+        onDragStart={e => this.handleDragStart(e)}
       >
         <button
           type="button"
@@ -81,9 +90,14 @@ class CabinetDynamic extends CabinetOpenable {
     return (
       <ul style={this.folderListStyle}>
         {this.props.folders.map(f => (
-          <FolderSpecimens key={f.id} id={f.id} title={f.title} />
+          <FolderSpecimens
+            key={f.id}
+            id={f.id}
+            title={f.title}
+            cabinetId={this.props.id}
+          />
         ))}
-        <FolderNew />
+        <FolderNew cabinetId={this.props.id} />
       </ul>
     );
   };
@@ -97,15 +111,16 @@ const mapStateToProps = (state, ownProps) => {
   // if we are focussed in the state then we are focussed.
   let focussed = false;
   let opened = false;
-  if (state.cabinets.focussedCabinetId == ownProps.id) {
+  if (state.cabinets.focussedCabinetId === ownProps.id) {
     focussed = true;
     opened = true;
   }
 
   thisCabinet.folderIds.map(fid => {
     // we are always opened if we contain the focussed folder?
-    if (state.folders.focussedFolderId == fid) opened = true;
+    if (state.folders.focussedFolderId === fid) opened = true;
     myFolders.push(folders.byId[fid]);
+    return fid;
   });
 
   return { folders: myFolders, focussed, opened };

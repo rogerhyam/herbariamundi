@@ -24,7 +24,7 @@ class FolderWorkbench extends Folder {
   };
 
   handleDrop = e => {
-    console.log("dropped on cabinet");
+    //console.log("dropped on cabinet");
     e.preventDefault(); // no other behaviour
     e.stopPropagation(); // don't get other components to fire
 

@@ -56,9 +56,9 @@ class FolderSpecimens extends MyHerbariumPart {
   handleDragStart = e => {
     console.log("folder drag start");
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("folderId", "folder 12939");
+    e.dataTransfer.setData("folderId", this.props.id);
     e.dataTransfer.setData("type", DraggableTypes.FOLDER);
-    e.dataTransfer.setDragImage(e.target, 10, 10);
+    e.dataTransfer.setDragImage(e.target, 2, 2);
   };
 
   render() {
@@ -91,7 +91,7 @@ class FolderSpecimens extends MyHerbariumPart {
 }
 const mapStateToProps = (state, ownProps) => {
   let focussed = false;
-  if (state.folders.focussedFolderId == ownProps.id) focussed = true;
+  if (state.folders.focussedFolderId === ownProps.id) focussed = true;
   return { focussed };
 };
 export default connect(mapStateToProps, { setFocus })(FolderSpecimens);

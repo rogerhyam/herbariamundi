@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import Cabinet from "./Cabinet";
 import { connect } from "react-redux";
 import { newCabinet } from "../redux/actions/cabinetActions";

@@ -10,7 +10,7 @@ class SpecimenBrowser extends Component {
     this.state = {};
   }
   render() {
-    const { specimens, title, description, associtedFolderId } = this.props;
+    const { specimens, title, description } = this.props;
 
     return (
       <Fragment>

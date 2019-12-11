@@ -3,7 +3,7 @@ import ActionTypes from "./ActionTypes";
 export function fetchMyHerbarium() {
   return dispatch => {
     dispatch(fetchMyHerbariumBegin());
-    return fetch("http://localhost:3100/data/fetch_my_herbarium.php")
+    return fetch("/fetch_my_herbarium.php")
       .then(handleErrors)
       .then(res => res.json())
       .then(json => {

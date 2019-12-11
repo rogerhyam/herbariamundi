@@ -32,19 +32,19 @@ class MyHerbarium extends Component {
     return (
       <Fragment>
         <ul style={this.cabinetListStyle}>
-          <CabinetTools title="Tools">
+          <CabinetTools title="Tools" key="tools">
             <FolderSearch />
             <FolderWorkbench />
             <FolderEdit />
             <FolderWaste />
           </CabinetTools>
-          <CabinetTemp title="Temporary">
+          <CabinetTemp title="Temporary" key="temp">
             <Folder title="2019-11-10" />
             <Folder title="2019-10-22" />
             <Folder title="2019-09-09" />
           </CabinetTemp>
           {this.getDynamicCabinets()}
-          <CabinetNew />
+          <CabinetNew key="newcab" />
         </ul>
       </Fragment>
     );
@@ -53,11 +53,7 @@ class MyHerbarium extends Component {
   getDynamicCabinets() {
     const { cabinets } = this.props;
     return cabinets.map(cab => (
-      <CabinetDynamic title={cab.title} id={cab.id}>
-        <Folder title="Folder 1" />
-        <Folder title="Folder 2" />
-        <Folder title="Folder 3" />
-      </CabinetDynamic>
+      <CabinetDynamic title={cab.title} id={cab.id} key={cab.id} />
     ));
   }
 }

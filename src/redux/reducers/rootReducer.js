@@ -21,13 +21,17 @@ const initialState = {
   },
   folders: {
     byId: {}, // dictionary for lookup of objects
-    focussedFolderId: null
+    focussedFolderId: null,
+    editingFolderId: null,
+    newFolderInCabinetId: null
   },
   cabinets: {
     byId: {}, // dictionary for lookup of objects
     cabinetIds: [], // for the ordered list displayed
     focussedCabinetId: null,
-    editingCabinetId: null
+    editingCabinetId: null,
+    loading: false,
+    error: null
   },
   myHerbarium: {
     loading: false,
@@ -99,7 +103,6 @@ const rootReducer = (state = initialState, action) => {
         }
       };
     case ActionTypes.FETCH_MY_HERBARIUM_SUCCESS:
-      console.log(action.payload);
       return {
         ...state,
         myHerbarium: {
@@ -128,7 +131,7 @@ const rootReducer = (state = initialState, action) => {
       };
 
     case ActionTypes.SET_FOCUS:
-      if (action.targetType == FocusTargetTypes.FOLDER) {
+      if (action.targetType === FocusTargetTypes.FOLDER) {
         return {
           ...state,
           folders: {
@@ -137,7 +140,7 @@ const rootReducer = (state = initialState, action) => {
           }
         };
       }
-      if (action.targetType == FocusTargetTypes.CABINET) {
+      if (action.targetType === FocusTargetTypes.CABINET) {
         return {
           ...state,
           cabinets: {
@@ -146,7 +149,7 @@ const rootReducer = (state = initialState, action) => {
           }
         };
       }
-
+      break;
     case ActionTypes.NEW_CABINET:
       return {
         ...state,
@@ -164,6 +167,159 @@ const rootReducer = (state = initialState, action) => {
           editingCabinetId: action.cabinetId
         }
       };
+
+    case ActionTypes.EDIT_CABINET_CANCEL:
+      return {
+        ...state,
+        cabinets: {
+          ...state.cabinets,
+          editingCabinetId: false
+        }
+      };
+
+    case ActionTypes.EDIT_CABINET_SAVE_BEGIN:
+      return {
+        ...state,
+        cabinets: {
+          ...state.cabinets,
+          editingCabinetId: action.cabinetId,
+          loading: true
+        }
+      };
+
+    case ActionTypes.EDIT_CABINET_SAVE_FAILURE:
+      return {
+        ...state,
+        cabinets: {
+          ...state.cabinets,
+          editingCabinetId: false,
+          loading: false,
+          error: action.payload.error
+        }
+      };
+
+    case ActionTypes.EDIT_CABINET_SAVE_SUCCESS:
+      const cabinet = action.payload;
+
+      // add it to the list of ids incase it is new.
+      // it will be removed later if it is already there.
+      state.cabinets.cabinetIds.push(cabinet.id);
+
+      return {
+        ...state,
+        cabinets: {
+          ...state.cabinets,
+          editingCabinetId: null,
+          loading: false,
+          error: null,
+          byId: {
+            ...state.cabinets.byId,
+            [cabinet.id]: cabinet
+          },
+          cabinetIds: [...new Set(state.cabinets.cabinetIds)]
+        }
+      };
+
+    case ActionTypes.REMOVE_CABINET_SUCCESS:
+      delete state.cabinets.byId[action.cabinet.id];
+      state.cabinets.cabinetIds.splice(
+        state.cabinets.cabinetIds.indexOf(action.cabinet.id),
+        1
+      );
+      return {
+        ...state
+      };
+
+    // FIXME: handle failed cabinet removal
+
+    // FOLDER STUFF
+
+    case ActionTypes.NEW_FOLDER:
+      return {
+        ...state,
+        folders: {
+          ...state.folders,
+          editingFolderId: "_NEW_",
+          newFolderInCabinetId: action.cabinetId
+        }
+      };
+
+    case ActionTypes.EDIT_FOLDER:
+      return {
+        ...state,
+        folders: {
+          ...state.folders,
+          editingFolderId: action.folderId,
+          newFolderInCabinetId: null
+        }
+      };
+
+    case ActionTypes.EDIT_FOLDER_CANCEL:
+      return {
+        ...state,
+        folders: {
+          ...state.folders,
+          editingFolderId: null,
+          newFolderInCabinetId: null
+        }
+      };
+
+    case ActionTypes.EDIT_FOLDER_SAVE_BEGIN:
+      return {
+        ...state,
+        folders: {
+          ...state.folders,
+          editingFolderId: action.folderId,
+          loading: true
+        }
+      };
+
+    case ActionTypes.EDIT_FOLDER_SAVE_FAILURE:
+      return {
+        ...state,
+        folders: {
+          ...state.folders,
+          editingFolderId: false,
+          newFolderInCabinetId: null,
+          loading: false,
+          error: action.payload.error
+        }
+      };
+
+    case ActionTypes.EDIT_FOLDER_SAVE_SUCCESS:
+      const folder = action.payload;
+      const folderCabinet = state.cabinets.byId[folder.cabinetId];
+      folderCabinet.folderIds.push(folder.id);
+      return {
+        ...state,
+        folders: {
+          ...state.folders,
+          editingFolderId: null,
+          newFolderInCabinetId: null,
+          loading: false,
+          error: null,
+          byId: {
+            ...state.folders.byId,
+            [folder.id]: folder
+          }
+        },
+        cabinets: {
+          ...state.cabinets,
+          byId: { ...state.cabinets.byId, [folder.cabinetId]: folderCabinet }
+        }
+      };
+
+    case ActionTypes.REMOVE_FOLDER_SUCCESS:
+      delete state.folders.byId[action.folder.id];
+      const i = state.cabinets.byId[action.folder.cabinetId].folderIds.indexOf(
+        action.folder.id
+      );
+      state.cabinets.byId[action.folder.cabinetId].folderIds.splice(i, 1);
+      return {
+        ...state
+      };
+
+    // FIXME: handle failed folder removal
 
     default:
       return state;

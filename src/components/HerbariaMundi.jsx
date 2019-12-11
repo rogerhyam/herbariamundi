@@ -17,6 +17,7 @@ import MyHerbarium from "./MyHerbarium";
 import Workbench from "./Workbench";
 import SearchForm from "./SearchForm";
 import CabinetEditForm from "./CabinetEditForm";
+import FolderEditForm from "./FolderEditForm";
 
 /**
  * Root component for the application
@@ -65,6 +66,7 @@ class HerbariaMundi extends Component {
                 </Col>
                 <Col style={{ padding: "1em" }}>
                   <CabinetEditForm />
+                  <FolderEditForm />
                   <SearchForm />
                   <SpecimenBrowser />
                 </Col>

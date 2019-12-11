@@ -1,4 +1,3 @@
-import React from "react";
 import Cabinet from "./Cabinet";
 
 class CabinetOpenable extends Cabinet {
@@ -21,8 +20,6 @@ class CabinetOpenable extends Cabinet {
     } else {
       this.setState({ isOpen: true });
     }
-
-    console.log("Toggling clicked");
   }
 
   isOpen() {
