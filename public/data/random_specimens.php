@@ -9,11 +9,12 @@ $out = array();
 while ($row = $result->fetch_assoc()) {
 
     $specimen = new stdClass();
+    $specimen->id = $row['id'];
     $specimen->cetaf_id = $row['cetaf_id'];
     $specimen->title =  $row['title'];
     $specimen->iiif_manifest_uri = $row['iiif_manifest_uri'];
     $specimen->thumbnail_uri = $row['thumbnail_path'];
-    $out[$row['cetaf_id']] = $specimen;
+    $out[$row['id']] = $specimen;
 
 }
 //print_r($out);

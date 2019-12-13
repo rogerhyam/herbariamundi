@@ -53,7 +53,12 @@ class MyHerbarium extends Component {
   getDynamicCabinets() {
     const { cabinets } = this.props;
     return cabinets.map(cab => (
-      <CabinetDynamic title={cab.title} id={cab.id} key={cab.id} />
+      <CabinetDynamic
+        title={cab.title}
+        description={cab.desciption}
+        id={cab.id}
+        key={cab.id}
+      />
     ));
   }
 }

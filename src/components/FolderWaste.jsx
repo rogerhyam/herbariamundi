@@ -2,7 +2,7 @@ import React from "react";
 import Folder from "./Folder";
 import DraggableTypes from "./DraggableTypes";
 import { connect } from "react-redux";
-import { removeFolder } from "../redux/actions/folderActions";
+import { removeFolder, removeSpecimen } from "../redux/actions/folderActions";
 import { removeCabinet } from "../redux/actions/cabinetActions";
 
 class FolderWaste extends Folder {
@@ -40,6 +40,13 @@ class FolderWaste extends Folder {
         this.props.removeCabinet(e.dataTransfer.getData("cabinetId"));
         break;
 
+      case DraggableTypes.SPECIMEN:
+        this.props.removeSpecimen(
+          e.dataTransfer.getData("associtedFolderId"),
+          e.dataTransfer.getData("specimenId")
+        );
+        break;
+
       default:
         // FIXME - nice modal dialogue here
         alert("Sorry you can't drop that here.");
@@ -70,4 +77,6 @@ class FolderWaste extends Folder {
     );
   }
 }
-export default connect(null, { removeFolder, removeCabinet })(FolderWaste);
+export default connect(null, { removeFolder, removeCabinet, removeSpecimen })(
+  FolderWaste
+);

@@ -77,6 +77,66 @@ export const removeFolderFailure = error => ({
   payload: { error }
 });
 
+// ADD SPECIMEN
+export function addSpecimen(folderId, specimenId) {
+  return dispatch => {
+    const requestOptions = {
+      method: "POST",
+      body: JSON.stringify({ folderId, specimenId })
+    };
+
+    return fetch("/folder_add_specimen.php", requestOptions)
+      .then(handleErrors)
+      .then(res => res.json())
+      .then(json => {
+        dispatch(addSpecimenSuccess(json));
+        return json;
+      })
+      .catch(error => dispatch(addSpecimenFailure(error)));
+  };
+}
+
+export const addSpecimenSuccess = folder => ({
+  type: ActionTypes.FOLDER_ADD_SPECIMEN_SUCCESS,
+  folder
+});
+
+export const addSpecimenFailure = error => ({
+  type: ActionTypes.FOLDER_ADD_SPECIMEN_FAILURE,
+  payload: { error }
+});
+
+// REMOVE SPECIMEN
+export function removeSpecimen(folderId, specimenId) {
+  return dispatch => {
+    const requestOptions = {
+      method: "POST",
+      body: JSON.stringify({ folderId: folderId, specimenId: specimenId })
+    };
+
+    return fetch("/folder_remove_specimen.php", requestOptions)
+      .then(handleErrors)
+      .then(res => res.json())
+      .then(json => {
+        dispatch(removeSpecimenSuccess(json));
+        return json;
+      })
+      .catch(error => dispatch(removeSpecimenFailure(error)));
+  };
+}
+
+export const removeSpecimenSuccess = folder => ({
+  type: ActionTypes.FOLDER_REMOVE_SPECIMEN_SUCCESS,
+  folder
+});
+
+export const removeSpecimenFailure = error => ({
+  type: ActionTypes.FOLDER_REMOVE_SPECIMEN_FAILURE,
+  payload: { error }
+});
+
+// ERRORS
+
 function handleErrors(response) {
   console.log(response);
   if (!response.ok) {

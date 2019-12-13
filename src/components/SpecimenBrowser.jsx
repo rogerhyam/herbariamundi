@@ -10,7 +10,7 @@ class SpecimenBrowser extends Component {
     this.state = {};
   }
   render() {
-    const { specimens, title, description } = this.props;
+    const { specimens, title, description, associatedFolderId } = this.props;
 
     return (
       <Fragment>
@@ -18,7 +18,12 @@ class SpecimenBrowser extends Component {
         {description && <span>{description}</span>}
         <Container fluid={true}>
           {specimens.map(sp => (
-            <SpecimenCard specimen={sp} key={sp.cetaf_id} mini={false} />
+            <SpecimenCard
+              specimen={sp}
+              key={sp.id}
+              mini={false}
+              associatedFolderId={associatedFolderId}
+            />
           ))}
         </Container>
       </Fragment>
@@ -29,7 +34,7 @@ class SpecimenBrowser extends Component {
 //export default TextList;
 const mapStateToProps = state => {
   const { browser } = state.specimens;
-  const { title, description, associtedFolderId } = browser;
+  const { title, description, associatedFolderId } = browser;
   // expand the specimen ids into specimens
   const specimens = [];
   browser.specimenIds.map(id => {
@@ -37,7 +42,7 @@ const mapStateToProps = state => {
     return id;
   });
 
-  return { specimens, title, description, associtedFolderId };
+  return { specimens, title, description, associatedFolderId };
 };
 
 // wrap the big boy in a connector

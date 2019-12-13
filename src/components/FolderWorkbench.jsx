@@ -2,7 +2,7 @@ import React from "react";
 import Folder from "./Folder";
 import DraggableTypes from "./DraggableTypes";
 import { connect } from "react-redux";
-import { addSpecimen } from "../redux/actions/workspaceActions";
+import { addSpecimen } from "../redux/actions/workbenchActions";
 import { showSpecimens } from "../redux/actions/showSpecimensAction";
 
 class FolderWorkbench extends Folder {
@@ -34,6 +34,7 @@ class FolderWorkbench extends Folder {
     switch (e.dataTransfer.getData("type")) {
       case DraggableTypes.SPECIMEN:
         console.log("specimen dropped on workbench");
+        console.log(e.dataTransfer.getData("specimenId"));
         this.props.addSpecimen(e.dataTransfer.getData("specimenId"));
         break;
       default:
@@ -58,7 +59,7 @@ class FolderWorkbench extends Folder {
           style={this.buttonStyle}
           onClick={() =>
             this.props.showSpecimens(
-              specimens.map(sp => sp.cetaf_id),
+              specimens.map(sp => sp.id),
               "Workbench",
               "Workbench",
               "These are specimens available in the workbench"

@@ -36,12 +36,15 @@ class CabinetDynamic extends CabinetOpenable {
       case DraggableTypes.FOLDER:
         console.log("Folder dropped");
         // FIXME - Add specimen to folder!!
+        alert("FIXME: Move folder to this cabinet");
         break;
       case DraggableTypes.CABINET:
         console.log("Cabinet dropped");
-        // FIXME - Add specimen to folder!!
+        // FIXME - change order of folders.
+        alert("FIXME: Change order of cabinets");
         break;
       default:
+        alert("Sorry you can't drop that here.");
         return false;
     }
   };
@@ -75,7 +78,6 @@ class CabinetDynamic extends CabinetOpenable {
           </span>
           {this.props.title} ({this.props.folders.length})
         </button>
-        {!this.props.focussed || "**"}
         {this.getFolderList()}
       </li>
     );
@@ -94,6 +96,7 @@ class CabinetDynamic extends CabinetOpenable {
             key={f.id}
             id={f.id}
             title={f.title}
+            description={f.description}
             cabinetId={this.props.id}
           />
         ))}

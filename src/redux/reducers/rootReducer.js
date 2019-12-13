@@ -14,7 +14,7 @@ const initialState = {
       loading: false,
       error: null,
       title: null,
-      associatedFolder: null,
+      associatedFolderId: null,
       description: null,
       specimenIds: []
     }
@@ -79,8 +79,8 @@ const rootReducer = (state = initialState, action) => {
           }
         }
       };
-    case ActionTypes.WORKSPACE_ADD_SPECIMEN:
-      state.specimens.workbench.specimenIds.push(action.specimen);
+    case ActionTypes.WORKBENCH_ADD_SPECIMEN:
+      state.specimens.workbench.specimenIds.push(action.specimenId);
       // de duplicate
       state.specimens.workbench.specimenIds = [
         ...new Set(state.specimens.workbench.specimenIds)
@@ -118,6 +118,10 @@ const rootReducer = (state = initialState, action) => {
           ...state.cabinets,
           byId: { ...action.payload.cabinets },
           cabinetIds: [...action.payload.cabinetIds]
+        },
+        specimens: {
+          ...state.specimens,
+          byId: { ...action.payload.specimens.byId }
         }
       };
     case ActionTypes.FETCH_MY_HERBARIUM_FAILURE:
@@ -320,6 +324,33 @@ const rootReducer = (state = initialState, action) => {
       };
 
     // FIXME: handle failed folder removal
+
+    case ActionTypes.FOLDER_ADD_SPECIMEN_SUCCESS:
+      // we just replace the whole folder with a new one
+      return {
+        ...state,
+        folders: {
+          ...state.folders,
+          byId: { ...state.folders.byId, [action.folder.id]: action.folder }
+        }
+      };
+
+    case ActionTypes.FOLDER_REMOVE_SPECIMEN_SUCCESS:
+      // we just replace the whole folder with a new one
+      return {
+        ...state,
+        folders: {
+          ...state.folders,
+          byId: { ...state.folders.byId, [action.folder.id]: action.folder }
+        },
+        specimens: {
+          ...state.specimens,
+          browser: {
+            ...state.specimens.browser,
+            specimenIds: action.folder.specimenIds
+          }
+        }
+      };
 
     default:
       return state;

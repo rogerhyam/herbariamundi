@@ -3,6 +3,8 @@ import DraggableTypes from "./DraggableTypes";
 import MyHerbariumPart from "./MyHerbariumPart";
 import { connect } from "react-redux";
 import { setFocus, FocusTargetTypes } from "../redux/actions/setFocusAction";
+import { addSpecimen } from "../redux/actions/folderActions";
+import { showSpecimens } from "../redux/actions/showSpecimensAction";
 
 class FolderSpecimens extends MyHerbariumPart {
   constructor(props) {
@@ -43,18 +45,27 @@ class FolderSpecimens extends MyHerbariumPart {
         console.log("Folder dropped");
         break;
       case DraggableTypes.SPECIMEN:
-        console.log("Specimen dropped");
-        console.log(e.dataTransfer.getData("specimenId"));
-        // FIXME - Add specimen to folder!!
-        break;
-      // nothing for other drop types
+        const spid = e.dataTransfer.getData("specimenId");
+
+        // prevent double adding
+        const specimenIds = this.props.specimens.map(sp => sp.id);
+        if (specimenIds.includes(spid)) {
+          alert("Specimens can only be added to a folder once.");
+          break;
+        } else {
+          this.props.addSpecimen(this.props.id, spid);
+          break;
+        }
+
       default:
+        alert("Sorry you can't drop that here");
         return false;
     }
   };
 
   handleDragStart = e => {
     console.log("folder drag start");
+    e.stopPropagation();
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("folderId", this.props.id);
     e.dataTransfer.setData("type", DraggableTypes.FOLDER);
@@ -62,6 +73,7 @@ class FolderSpecimens extends MyHerbariumPart {
   };
 
   render() {
+    const { specimens } = this.props;
     return (
       <li
         style={this.state.style}
@@ -75,16 +87,21 @@ class FolderSpecimens extends MyHerbariumPart {
         <button
           type="button"
           style={this.buttonStyle}
-          onClick={e =>
-            this.props.setFocus(FocusTargetTypes.FOLDER, this.props.id)
-          }
+          onClick={e => {
+            this.props.showSpecimens(
+              specimens.map(sp => sp.id),
+              this.props.id,
+              this.props.title,
+              this.props.description
+            );
+            this.props.setFocus(FocusTargetTypes.FOLDER, this.props.id);
+          }}
         >
           <span role="img" aria-label="Folder">
             📁
           </span>{" "}
-          {this.props.title}
+          {this.props.title} ({specimens.length})
         </button>
-        {!this.props.focussed || "**"}
       </li>
     );
   }
@@ -92,7 +109,18 @@ class FolderSpecimens extends MyHerbariumPart {
 const mapStateToProps = (state, ownProps) => {
   let focussed = false;
   if (state.folders.focussedFolderId === ownProps.id) focussed = true;
-  return { focussed };
+
+  // how many specimens do we have?
+  const specimens = [];
+  state.folders.byId[ownProps.id].specimenIds.map(id => {
+    specimens.push(state.specimens.byId[id]);
+    return id;
+  });
+  return { focussed, specimens };
 };
-export default connect(mapStateToProps, { setFocus })(FolderSpecimens);
+export default connect(mapStateToProps, {
+  setFocus,
+  addSpecimen,
+  showSpecimens
+})(FolderSpecimens);
 //export default Folder;
