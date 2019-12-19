@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 session_start();
 
 // db credentials are kept here.
-require_once('../../../mundi_secret.php');
+require_once('../../mundi_secret.php');
 
 // path to users directories
 // check permissions on this when installing

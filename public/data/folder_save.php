@@ -14,7 +14,7 @@
         $row = $r->fetch_assoc();
         $sort_index = $row['n'];
 
-        $stmt = $mysqli->prepare("INSERT INTO Folder (`title`, `description` ) VALUES (?,?)");
+        $stmt = $mysqli->prepare("INSERT INTO folder (`title`, `description` ) VALUES (?,?)");
         $stmt->bind_param("ss", $folder->title, $folder->description);
         $stmt->execute();
         $stmt->close();
@@ -36,7 +36,7 @@
     }
 
     // finally return the saved version of tha cabinet as confirmation
-    $r = $mysqli->query("SELECT * FROM Folder as f join folder_placement as p on f.id = p.folder_id WHERE f.id = $folder_id and p.owner_id = $user_id");
+    $r = $mysqli->query("SELECT * FROM folder as f join folder_placement as p on f.id = p.folder_id WHERE f.id = $folder_id and p.owner_id = $user_id");
     $row = $r->fetch_assoc();
     $out = array();
     $out['id'] = $row['id'];

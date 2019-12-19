@@ -9,11 +9,11 @@
     if($cab_id == "_NEW_"){
 
         // we are adding a new one. It goes after all the others.
-        $r = $mysqli->query("SELECT count(*) as n FROM Cabinet WHERE owner_id = '{$_SESSION['user_id']}'");
+        $r = $mysqli->query("SELECT count(*) as n FROM cabinet WHERE owner_id = '{$_SESSION['user_id']}'");
         $row = $r->fetch_assoc();
         $sort_index = $row['n'];
 
-        $stmt = $mysqli->prepare("INSERT INTO Cabinet (`title`, `description`, `sort_index`, `owner_id` ) VALUES (?,?,?,?)");
+        $stmt = $mysqli->prepare("INSERT INTO cabinet (`title`, `description`, `sort_index`, `owner_id` ) VALUES (?,?,?,?)");
         $stmt->bind_param("ssii", $cabinet->title, $cabinet->description, $sort_index, $_SESSION['user_id']);
         $stmt->execute();
 

@@ -12,7 +12,7 @@ function remove_cabinet($cabinet_id){
     }
 
     // actually remove the cabinet.
-    $stmt = $mysqli->prepare("DELETE FROM Cabinet where `id` = ? and `owner_id` = ?");
+    $stmt = $mysqli->prepare("DELETE FROM cabinet where `id` = ? and `owner_id` = ?");
     $stmt->bind_param("ii", $cabinet_id, $user_id);
     $stmt->execute();
     $stmt->close();
@@ -30,7 +30,7 @@ function remove_folder($folder_id){
     remove_folder_from_cabinet($folder_id);
 
     // remove the folder itself
-    $stmt = $mysqli->prepare("DELETE FROM Folder where `id` = ?");
+    $stmt = $mysqli->prepare("DELETE FROM folder where `id` = ?");
     $stmt->bind_param("i", $folder_id);
     $stmt->execute();
     $stmt->close();

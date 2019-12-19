@@ -16,51 +16,20 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `Cabinet`
+-- Table structure for table `cabinet`
 --
 
-DROP TABLE IF EXISTS `Cabinet`;
+DROP TABLE IF EXISTS `cabinet`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `Cabinet` (
+CREATE TABLE `cabinet` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(45) DEFAULT NULL,
   `description` varchar(500) DEFAULT NULL,
   `owner_id` int(11) NOT NULL,
   `sort_index` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `Folder`
---
-
-DROP TABLE IF EXISTS `Folder`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `Folder` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(45) DEFAULT NULL,
-  `description` varchar(500) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `User`
---
-
-DROP TABLE IF EXISTS `User`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `User` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(45) DEFAULT NULL,
-  `orcid` varchar(20) DEFAULT NULL,
-  `access_token` varchar(36) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -77,6 +46,21 @@ CREATE TABLE `cetaf_id` (
   UNIQUE KEY `cetaf_id` (`cetaf_id`) USING BTREE,
   KEY `specimen_id` (`cetaf_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `folder`
+--
+
+DROP TABLE IF EXISTS `folder`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `folder` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(45) DEFAULT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -110,9 +94,12 @@ CREATE TABLE `specimen` (
   `rdf` mediumtext COMMENT 'A rdf xml serialize string.',
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `index_string` varchar(1000) DEFAULT NULL,
+  `owner_id` int(11) DEFAULT NULL COMMENT 'This is null unless the specimen is a temporary one that is owned by someone.',
   PRIMARY KEY (`id`),
-  KEY `manifestid` (`iiif_manifest_uri`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=65536 DEFAULT CHARSET=utf8;
+  KEY `manifestid` (`iiif_manifest_uri`) USING BTREE,
+  FULLTEXT KEY `full_text` (`index_string`)
+) ENGINE=InnoDB AUTO_INCREMENT=65537 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -132,17 +119,19 @@ CREATE TABLE `specimen_placement` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `specimens_test`
+-- Table structure for table `user`
 --
 
-DROP TABLE IF EXISTS `specimens_test`;
+DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `specimens_test` (
-  `CatalogNumber` text,
-  `GloballyUniqueIdentifier` text,
-  `ScientificName` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) DEFAULT NULL,
+  `orcid` varchar(20) DEFAULT NULL,
+  `access_token` varchar(36) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -154,4 +143,4 @@ CREATE TABLE `specimens_test` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-12-13 17:12:57
+-- Dump completed on 2019-12-19 11:48:28
