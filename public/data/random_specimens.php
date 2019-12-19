@@ -21,6 +21,7 @@ while ($row = $result->fetch_assoc()) {
 
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
+$out = array("specimens" => $out);
 echo JSON_encode($out);
 
 ?>

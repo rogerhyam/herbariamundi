@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import MyHerbariumPart from "./MyHerbariumPart";
-import { fetchSpecimens } from "../redux/actions/fetchSpecimensActions";
+import { setFocus, FocusTargetTypes } from "../redux/actions/setFocusAction";
 
 class FolderSearch extends MyHerbariumPart {
   constructor(props) {
@@ -14,7 +14,7 @@ class FolderSearch extends MyHerbariumPart {
         <button
           type="button"
           style={this.buttonStyle}
-          onClick={this.props.fetchSpecimens}
+          onClick={() => this.props.setFocus(FocusTargetTypes.SEARCH, null)}
         >
           <span role="img" aria-label="Search">
             🔎
@@ -25,5 +25,5 @@ class FolderSearch extends MyHerbariumPart {
     );
   }
 }
-export default connect(null, { fetchSpecimens })(FolderSearch);
+export default connect(null, { setFocus })(FolderSearch);
 //export default CabinetSearch;

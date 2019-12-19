@@ -2,7 +2,8 @@ import ActionTypes from "./ActionTypes";
 
 export const FocusTargetTypes = {
   FOLDER: "FOLDER",
-  CABINET: "CABINET"
+  CABINET: "CABINET",
+  SEARCH: "SEARCH"
 };
 
 export const setFocus = (targetType, targetId) => ({

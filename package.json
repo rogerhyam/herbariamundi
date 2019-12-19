@@ -21,7 +21,8 @@
     "redux": "^4.0.4",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
-    "urijs": "^1.19.2"
+    "urijs": "^1.19.2",
+    "uuid": "^3.3.3"
   },
   "scripts": {
     "start": "react-scripts start",

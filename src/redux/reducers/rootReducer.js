@@ -19,6 +19,12 @@ const initialState = {
       specimenIds: []
     }
   },
+  search: {
+    active: false,
+    loading: false,
+    error: null,
+    history: []
+  },
   folders: {
     byId: {}, // dictionary for lookup of objects
     focussedFolderId: null,
@@ -59,12 +65,16 @@ const rootReducer = (state = initialState, action) => {
         specimens: {
           ...state.specimens,
           loading: false,
-          byId: { ...state.specimens.byId, ...action.payload.specimens },
+          byId: { ...state.specimens.byId, ...action.response.specimens },
           browser: {
-            specimenIds: Object.keys(action.payload.specimens),
+            specimenIds: Object.keys(action.response.specimens),
             loading: false,
             error: null
           }
+        },
+        search: {
+          ...state.search,
+          history: [action.response, ...state.search.history]
         }
       };
     case ActionTypes.FETCH_SPECIMENS_FAILURE:
@@ -141,6 +151,10 @@ const rootReducer = (state = initialState, action) => {
           folders: {
             ...state.folders,
             focussedFolderId: action.targetId
+          },
+          search: {
+            ...state.search,
+            active: false
           }
         };
       }
@@ -150,6 +164,29 @@ const rootReducer = (state = initialState, action) => {
           cabinets: {
             ...state.cabinets,
             focussedCabinetId: action.targetId
+          }
+        };
+      }
+      if (action.targetType === FocusTargetTypes.SEARCH) {
+        return {
+          ...state,
+          folders: {
+            ...state.folders,
+            focussedFolderId: null
+          },
+          search: {
+            ...state.search,
+            active: true
+          },
+          specimens: {
+            ...state.specimens,
+            browser: {
+              ...state.specimens.browser,
+              associatedFolderId: null,
+              specimenIds: [],
+              description: null,
+              title: null
+            }
           }
         };
       }

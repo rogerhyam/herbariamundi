@@ -1,13 +1,18 @@
 import ActionTypes from "./ActionTypes";
 
-export function fetchSpecimens() {
+export function fetchSpecimens(searchParams) {
   return dispatch => {
     dispatch(fetchSpecimensBegin());
-    return fetch("/random_specimens.php", {
+
+    const requestOptions = {
+      method: "POST",
+      body: JSON.stringify(searchParams),
       headers: {
         Accept: "application/json"
       }
-    })
+    };
+
+    return fetch("/fetch_specimens.php", requestOptions)
       .then(handleErrors)
       .then(res => res.json())
       .then(json => {
@@ -18,13 +23,14 @@ export function fetchSpecimens() {
   };
 }
 
-export const fetchSpecimensBegin = () => ({
-  type: ActionTypes.FETCH_SPECIMENS_BEGIN
+export const fetchSpecimensBegin = searchParams => ({
+  type: ActionTypes.FETCH_SPECIMENS_BEGIN,
+  searchParams
 });
 
-export const fetchSpecimensSuccess = specimens => ({
+export const fetchSpecimensSuccess = response => ({
   type: ActionTypes.FETCH_SPECIMENS_SUCCESS,
-  payload: { specimens }
+  response
 });
 
 export const fetchSpecimensFailure = error => ({

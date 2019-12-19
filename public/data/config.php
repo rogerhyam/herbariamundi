@@ -7,6 +7,11 @@ session_start();
 // db credentials are kept here.
 require_once('../../../mundi_secret.php');
 
+// path to users directories
+// check permissions on this when installing
+// end in slash
+define('USER_DATA_DIR_ROOT_DIR', 'user_data/');
+
 // create and initialise the database connection
 $mysqli = new mysqli($db_host, $db_user, $db_password, $db_database);
 
