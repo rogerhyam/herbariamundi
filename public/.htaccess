@@ -1,0 +1,7 @@
+RewriteEngine On
+
+# all calls to iiif URIs are handled by a router script
+RewriteRule ^iiif\/.*  data/router.php [END]
+
+# all .php files are in the data directory
+RewriteRule ([^\.]+).php data/$1.php [END]

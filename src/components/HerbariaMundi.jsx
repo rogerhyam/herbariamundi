@@ -35,15 +35,22 @@ class HerbariaMundi extends Component {
           <Navbar.Brand href="#home">BRAVO Compare</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
-              <Nav.Link href="#home">About</Nav.Link>
-            </Nav>
+            <Nav className="mr-auto"></Nav>
             <Form inline>
-              <Button variant="outline-success">Login with ORCID</Button>
+              <Button
+                variant="outline-success"
+                onClick={e =>
+                  alert(
+                    "Authentication will be implemented in next update. Changes to cabinets & folders etc will then be stored permanently."
+                  )
+                }
+              >
+                Login with ORCID
+              </Button>
             </Form>
           </Navbar.Collapse>
         </Navbar>
-        <Tabs defaultActiveKey="upload" id="mainTabs">
+        <Tabs defaultActiveKey="specimens" id="mainTabs">
           <Tab eventKey="specimens" title="Specimens">
             <Container fluid={true} style={{ padding: 0 }}>
               <Row noGutters={true}>
@@ -65,6 +72,85 @@ class HerbariaMundi extends Component {
           </Tab>
           <Tab eventKey="upload" title="Upload">
             <SpecimenCreateForm />
+          </Tab>
+          <Tab eventKey="about" title="About">
+            <Container style={{ paddingTop: "2em" }}>
+              <h2>About</h2>
+              <p>
+                It is a proof of concept application to facilitate online
+                identification by matching of forest plot voucher specimens with
+                reference specimens in the world's herbaria. It was developed as
+                part of a project funded by the British Council and Newton Fund.
+              </p>
+              <p>
+                This application is not intended to be feature complete and
+                useable at this stage but will form the foundation of future
+                projects that will take the concept into full production.
+              </p>
+              <h3>About the British Council</h3>
+              <p>
+                <a href="https://www.britishcouncil.org/">
+                  <img
+                    src="images/British_Council.png"
+                    alt="British Council Logo"
+                    style={{ float: "right", width: "15rem" }}
+                  />
+                </a>
+                The British Council is the UK’s international organisation for
+                cultural relations and educational opportunities. We were
+                founded in 1934 and incorporated by Royal Charter in 1940.
+              </p>
+              <p>
+                For more information visit:{" "}
+                <a href="https://www.britishcouncil.org/">
+                  www.britishcouncil.org
+                </a>
+              </p>
+
+              <h3>About the Newton Fund</h3>
+              <p>
+                <a href="https://www.newtonfund.ac.uk">
+                  <img
+                    src="images/Newton-Fund-Master-rgb-small.JPG"
+                    alt="Newton Fund Logo"
+                    style={{ float: "right", width: "15rem" }}
+                  />
+                </a>
+                The Newton Fund is now a £735 million fund which, through
+                science and innovation partnerships, promotes the economic
+                development and social welfare of partnering countries. It aims
+                to strengthen science and innovation capacity and unlock further
+                funding through which the UK and partner countries will build
+                strong, sustainable and systemic relationships. It is delivered
+                through 7 UK delivery partners in collaboration with the partner
+                countries. Activities are in three broad activities:{" "}
+              </p>
+              <div>
+                <ul>
+                  <li>
+                    <strong>People:</strong> increasing capacity for science and
+                    innovation in partner countries.
+                  </li>
+                  <li>
+                    <strong>Research:</strong> collaborations on development
+                    topics.
+                  </li>
+                  <li>
+                    <strong>Translation:</strong> creating collaborative
+                    solutions to development challenges and strengthening
+                    innovation systems.
+                  </li>
+                </ul>
+                <p>
+                  For more information visit:{" "}
+                  <a href="https://www.newtonfund.ac.uk">
+                    www.newtonfund.ac.uk
+                  </a>{" "}
+                  and follow via Twitter:{" "}
+                  <a href="https://twitter.com/NewtonFund">@NewtonFund</a>
+                </p>
+              </div>
+            </Container>
           </Tab>
         </Tabs>
       </Provider>

@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from "react";
-import CabinetTemp from "./CabinetTemp";
 import CabinetDynamic from "./CabinetDynamic";
 import FolderSearch from "./FolderSearch";
 import FolderWaste from "./FolderWaste";
@@ -38,11 +37,6 @@ class MyHerbarium extends Component {
             <FolderEdit />
             <FolderWaste />
           </CabinetTools>
-          <CabinetTemp title="Temporary" key="temp">
-            <Folder title="2019-11-10" />
-            <Folder title="2019-10-22" />
-            <Folder title="2019-09-09" />
-          </CabinetTemp>
           {this.getDynamicCabinets()}
           <CabinetNew key="newcab" />
         </ul>

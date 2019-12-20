@@ -1,22 +1,23 @@
 <?php
 
-// used during development to simulate .htaccess for the iiif directory
+// This file handles the routing for IIIF requests
+
+
+// this bit is used during development to simulate .htaccess for the iiif directory
+// in production uri's starting with iiif don't come here
 $matches = array();
 if (!preg_match('/\/iiif(.*)/', $_SERVER["REQUEST_URI"], $matches)) {
     return false;  
 }
+$iiif_path = $matches[1];
 
-// so we could have all iiif stuff coming here and just parse the path
-// we could use .htaccess in production and just route through this script in dev.
 
-// FIXME - in production the original $_SERVER["REQUEST_URI"] may not be passed so we #
-// may need to pass it as a param and detect that.
-
+// even in production this is the full request URI so we can parse it and 
+// server the appropriate IIIF response
 $full_path = $_SERVER["REQUEST_URI"];
 
 echo "<p>$full_path</p>";
 
-$iiif_path = $matches[1];
 
 if(preg_match('/^\/presentation/', $iiif_path)){
     echo "<p>We are calling the presentation api</p>";

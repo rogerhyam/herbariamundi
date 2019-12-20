@@ -30,7 +30,7 @@
     }
 
     // finally return the saved version of tha cabinet as confirmation
-    $r = $mysqli->query("SELECT * FROM Cabinet WHERE id = $cab_id");
+    $r = $mysqli->query("SELECT * FROM cabinet WHERE id = $cab_id");
     $row = $r->fetch_assoc();
     $out = array();
     $out['id'] = $row['id'];
@@ -45,7 +45,7 @@
         $out['folderIds'][] = $row['folder_id'];
     }
 
-    header('Content-Type: application/json');
+    header('Content-Type: application/json');       
     echo JSON_encode($out);
 
 ?>
