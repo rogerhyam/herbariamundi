@@ -1,7 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# composer
+public/data/composer.phar
+public/data/vendor
+
 # data stuff
-/data/user_data
+public/data/zenodo_cache
 
 # dependencies
 /node_modules

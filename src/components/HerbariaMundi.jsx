@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import Navbar from "react-bootstrap/NavBar";
 import Nav from "react-bootstrap/Nav";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -18,7 +17,6 @@ import Workbench from "./Workbench";
 import SearchForm from "./SearchForm";
 import CabinetEditForm from "./CabinetEditForm";
 import FolderEditForm from "./FolderEditForm";
-import SpecimenCreateForm from "./SpecimenCreateForm";
 
 /**
  * Root component for the application
@@ -70,8 +68,10 @@ class HerbariaMundi extends Component {
           <Tab eventKey="workbench" title="Workbench" id="Workbench01">
             <Workbench />
           </Tab>
-          <Tab eventKey="upload" title="Upload">
-            <SpecimenCreateForm />
+          <Tab eventKey="zenodo" title="Zenodo" id="Workbench01">
+            <Container style={{ paddingTop: "2em" }}>
+              <h2>Zenodo</h2>
+            </Container>
           </Tab>
           <Tab eventKey="about" title="About">
             <Container style={{ paddingTop: "2em" }}>

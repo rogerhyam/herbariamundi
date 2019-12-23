@@ -4,13 +4,19 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 session_start();
 
+require('vendor/autoload.php');
+
 // db credentials are kept here.
 require_once('../../mundi_secret.php');
 
-// path to users directories
+// URI of OMI-PMH end point at Zenodo to follow
+// this is the community with all the specimens in it
+define('ZENODO_OAI_PMH_URI', 'https://zenodo.org/oai2d?verb=ListRecords&set=user-bravo&metadataPrefix=oai_dc');
+
+// Where do we store IIIF data from Zenodo
 // check permissions on this when installing
 // end in slash
-define('USER_DATA_DIR_ROOT_DIR', 'user_data/');
+define('ZENODO_SPECIMEN_CACHE', 'zenodo_cache/');
 
 // create and initialise the database connection
 $mysqli = new mysqli($db_host, $db_user, $db_password, $db_database);
