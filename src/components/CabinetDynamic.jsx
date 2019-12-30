@@ -60,7 +60,10 @@ class CabinetDynamic extends CabinetOpenable {
   render() {
     return (
       <li
-        style={this.state.style}
+        style={{
+          ...this.state.style,
+          paddingTop: "0.5rem"
+        }}
         draggable={true}
         onDragEnter={e => this.handleDragEnter(e)}
         onDragLeave={e => this.handleDragLeave(e)}
@@ -75,7 +78,7 @@ class CabinetDynamic extends CabinetOpenable {
         >
           <span role="img" aria-label="Search">
             🗄️
-          </span>
+          </span>{" "}
           {this.props.title} ({this.props.folders.length})
         </button>
         {this.getFolderList()}

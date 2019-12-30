@@ -1,5 +1,7 @@
 <?php
 
+require_once('config.php');
+
 // This file handles the routing for IIIF requests
 
 
@@ -11,28 +13,22 @@ if (!preg_match('/\/iiif(.*)/', $_SERVER["REQUEST_URI"], $matches)) {
 }
 $iiif_path = $matches[1];
 
+// all iiif requests will contain the object identifier 
 
-// even in production this is the full request URI so we can parse it and 
-// server the appropriate IIIF response
-$full_path = $_SERVER["REQUEST_URI"];
-
-echo "<p>$full_path</p>";
-
-
-if(preg_match('/^\/presentation/', $iiif_path)){
-    echo "<p>We are calling the presentation api</p>";
-
-    // set up variables from the path parts
-    // include the manifest script.
-
+// looking for presenation api services
+if(preg_match('/^\/p\//', $iiif_path)){
+    require_once('iiif/presentation_manifest.php');
 }
 
-if(preg_match('/^\/image/', $iiif_path)){
-    echo "<p>We are calling the IMAGE API</p>";
+// looking for image api services
+if(preg_match('/^\/i\//', $iiif_path)){
 
-    // set up variables from the path parts
-    // include the image.json script or images server
-    
+    if(preg_match('/info.json$/', $iiif_path)){
+        require_once('iiif/image_info.php');
+    }else{
+        require_once('iiif/image_server.php');
+    }
+
 }
 
 ?>

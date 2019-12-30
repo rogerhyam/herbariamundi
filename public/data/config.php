@@ -16,7 +16,8 @@ define('ZENODO_OAI_PMH_URI', 'https://zenodo.org/oai2d?verb=ListRecords&set=user
 // Where do we store IIIF data from Zenodo
 // check permissions on this when installing
 // end in slash
-define('ZENODO_SPECIMEN_CACHE', 'zenodo_cache/');
+//define('ZENODO_SPECIMEN_CACHE', 'zenodo_cache/'); // live
+define('ZENODO_SPECIMEN_CACHE', 'data/zenodo_cache/'); // dev
 
 // create and initialise the database connection
 $mysqli = new mysqli($db_host, $db_user, $db_password, $db_database);

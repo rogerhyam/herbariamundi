@@ -9,7 +9,7 @@ class Cabinet extends MyHerbariumPart {
 
   folderListStyle = {
     listStyleType: "none",
-    marginLeft: "1rem",
+    marginLeft: "0rem",
     padding: 0
   };
 

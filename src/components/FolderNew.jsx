@@ -24,6 +24,7 @@ class FolderNew extends Folder {
           <span role="img" aria-label="New">
             ✨
           </span>
+          {"  "}
           Add Folder
         </button>
       </li>
