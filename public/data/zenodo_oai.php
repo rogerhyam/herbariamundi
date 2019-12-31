@@ -105,7 +105,7 @@ function update_specimen($specimen_id, $record){
     // the ids all remain the same.
     $title = $record->metadata->title;
     $raw = json_encode($record);
-    $index_string = substr(preg_replace('/\s+/', ' ',strip_tags(print_r($record, true))), 0, 1000);
+    $index_string = substr( strip_tags($record->metadata->description), 0, 1000);
 
     $stmt = $mysqli->prepare("UPDATE specimen SET `title` = ?, `raw` = ?, `index_string` = ? WHERE id = ?");
     if ( false===$stmt ) {
@@ -136,7 +136,7 @@ function create_specimen($record){
     $title = $record->metadata->title;
     // $thumbnail_path = "/iiif/image/" . $record->conceptrecid . "/full/150,/0/default.jpg";
     $raw = json_encode($record);
-    $index_string = substr(preg_replace('/\s+/', ' ',strip_tags(print_r($record, true))), 0, 1000); // temporary indexing measures
+    $index_string = substr( strip_tags($record->metadata->description), 0, 1000);
 
     $stmt_sp = $mysqli->prepare("INSERT INTO specimen (`title`, `raw`, `index_string`) VALUES (?,?,?);");
     $stmt_sp->bind_param(

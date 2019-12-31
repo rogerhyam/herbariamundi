@@ -7,7 +7,7 @@ require_once('functions.php');
 // parse out that path describing the image request
 // from api => {scheme}://{server}{/prefix}/{identifier}/{region}/{size}/{rotation}/{quality}.{format}
 $matches = array();
-if(!preg_match('/^\/iiif\/i\/([^\/]+)\/([^\/]+)\/([^\/]+)\/([^\/]+)\/([^\.]+)\.([a-z]+)$/',$_SERVER["REQUEST_URI"], $matches)){
+if(!preg_match('/\/iiif\/i\/([^\/]+)\/([^\/]+)\/([^\/]+)\/([^\/]+)\/([^\.]+)\.([a-z]+)$/',$_SERVER["REQUEST_URI"], $matches)){
     throw_badness('Invalid image URI' . $_SERVER["REQUEST_URI"]);
 }else{
     list($path, $identifier, $region, $size, $rotation, $quality, $format) = $matches;
@@ -61,7 +61,7 @@ if($region == 'full'){
     exit;
 
 }else{
-    $region = explode(',', $_GET['region']);
+    $region = explode(',', $region);
     list($region_x, $region_y, $region_w, $region_h) = $region;
 }
 // the scale factor is a whole number because we have specified 

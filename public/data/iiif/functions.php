@@ -14,7 +14,7 @@ function get_specimen_id(){
     // path looks like this =>  /iiif/i/123/sdfsdfsadf/sadfds/sadfs 
     // fixme: needs check
     $matches = array();
-    if(preg_match('/^\/iiif\/[i|p]\/([0-9]+)\//',$_SERVER["REQUEST_URI"], $matches)){
+    if(preg_match('/\/iiif\/[i|p]\/([0-9]+)\//',$_SERVER["REQUEST_URI"], $matches)){
         return $matches[1];
     }else{
         echo "Bad Request: " . $_SERVER["REQUEST_URI"];
@@ -25,7 +25,7 @@ function get_specimen_id(){
 
 function get_image_path(){
     $matches = array();
-    if(preg_match('/^\/iiif\/i\/([^\/]+)\//',$_SERVER["REQUEST_URI"], $matches)){
+    if(preg_match('/\/iiif\/i\/([^\/]+)\//',$_SERVER["REQUEST_URI"], $matches)){
         return ZENODO_SPECIMEN_CACHE . base64_decode($matches[1]);
     }else{
         echo "Bad Request: " . $_SERVER["REQUEST_URI"];
@@ -42,21 +42,24 @@ function get_specimen_metadata(){
 
 
 function get_base_uri(){
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-    $domainName = $_SERVER['HTTP_HOST'];
 
     $matches = array();
-    preg_match('/(^\/iiif\/[p|i]\/[^\/]+)\//',$_SERVER["REQUEST_URI"], $matches);
+    preg_match('/(\/iiif\/[p|i]\/[^\/]+)\//',$_SERVER["REQUEST_URI"], $matches);
 
-    $base_uri = $protocol . $domainName . $matches[1];
+    $base_uri = PROTOCOL_HOST_PORT . $matches[1];
 
     return $base_uri;
 }
 
+function get_image_uri($specimen_id, $file_data){
+    $image_uri = PROTOCOL_HOST_PORT . '/iiif/i/' . base64_encode($specimen_id . '/' . pathinfo($file_data->key, PATHINFO_FILENAME) );
+    return $image_uri;
+}
 
-function get_image_properties(){
 
-    $image_path = get_image_path();
+function get_image_properties($image_path = false){
+
+    if(!$image_path) $image_path = get_image_path();
 
 	$xml_string = file_get_contents($image_path . '/ImageProperties.xml');
 	
@@ -236,6 +239,15 @@ function create_key_value_label($key, $val){
 	return $out;
 }
 
+function get_closest($search, $arr) {
+    $closest = null;
+    foreach ($arr as $item) {
+       if ($closest === null || abs($search - $closest) > abs($item - $search)) {
+          $closest = $item;
+       }
+    }
+    return $closest;
+ }
 
 function throw_badness($message){
 	header("HTTP/1.1 400 Bad Request");
