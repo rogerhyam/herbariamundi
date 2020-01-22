@@ -43,7 +43,7 @@ if(!isset($_SESSION['user_id'])){
 
   if($result->num_rows){
     $row = $result->fetch_assoc();
-    $_SESSION['user_id'] = $row['id'];
+    $_SESSION['user_id'] = $row['id'];  
     $_SESSION['user_name'] = $row['name'];
   }else{
     $name = 'Anonymous';
