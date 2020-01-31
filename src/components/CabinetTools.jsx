@@ -13,7 +13,7 @@ class CabinetTools extends CabinetOpenable {
 
   render() {
     return (
-      <li>
+      <li style={{ marginBottom: "0.5rem" }}>
         <button
           type="button"
           style={this.buttonStyle}
@@ -23,6 +23,7 @@ class CabinetTools extends CabinetOpenable {
             🗄️
           </span>{" "}
           {this.props.title}
+          {this.getArrow()}
         </button>
         {this.getFolderList()}{" "}
       </li>

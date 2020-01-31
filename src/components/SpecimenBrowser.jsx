@@ -44,6 +44,4 @@ const mapStateToProps = state => {
 
   return { specimens, title, description, associatedFolderId };
 };
-
-// wrap the big boy in a connector
 export default connect(mapStateToProps, { fetchSpecimens })(SpecimenBrowser);

@@ -68,16 +68,11 @@ class HerbariaMundi extends Component {
           <Tab eventKey="workbench" title="Workbench" id="Workbench01">
             <Workbench />
           </Tab>
-          <Tab eventKey="zenodo" title="Zenodo" id="Workbench01">
-            <Container style={{ paddingTop: "2em" }}>
-              <h2>Zenodo</h2>
-            </Container>
-          </Tab>
           <Tab eventKey="about" title="About">
             <Container style={{ paddingTop: "2em" }}>
               <h2>About</h2>
               <p>
-                It is a proof of concept application to facilitate online
+                This is a proof of concept application to facilitate online
                 identification by matching of forest plot voucher specimens with
                 reference specimens in the world's herbaria. It was developed as
                 part of a project funded by the British Council and Newton Fund.
@@ -87,6 +82,19 @@ class HerbariaMundi extends Component {
                 useable at this stage but will form the foundation of future
                 projects that will take the concept into full production.
               </p>
+              <h3>Video Overview</h3>
+              <center>
+                <iframe
+                  width="560"
+                  height="315"
+                  src="https://www.youtube.com/embed/L0acOMR3HHo"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
+              </center>
+              <p>&nbsp;</p>
+
               <h3>About the British Council</h3>
               <p>
                 <a href="https://www.britishcouncil.org/">

@@ -7,3 +7,10 @@ export function addSpecimen(specimenId) {
     specimenId
   };
 }
+
+export function removeSpecimen(specimenId) {
+  return {
+    type: ActionTypes.WORKBENCH_REMOVE_SPECIMEN,
+    specimenId
+  };
+}

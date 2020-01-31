@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import Card from "react-bootstrap/Card";
+import Image from "react-bootstrap/Image";
+import Button from "react-bootstrap/Button";
 import DraggableTypes from "./DraggableTypes";
 
 class SpecimenCard extends Component {
@@ -14,6 +16,18 @@ class SpecimenCard extends Component {
     e.dataTransfer.setData("associtedFolderId", associtedFolderId);
     e.dataTransfer.setData("type", DraggableTypes.SPECIMEN);
     e.dataTransfer.setDragImage(e.target, 10, 10);
+  };
+
+  loadingButton = isLoaded => {
+    if (isLoaded) {
+      return "";
+    } else {
+      return (
+        <Button variant="outline-secondary" size="sm">
+          Load
+        </Button>
+      );
+    }
   };
 
   render() {
@@ -38,7 +52,7 @@ class SpecimenCard extends Component {
           src={specimen.thumbnail_uri}
           draggable={false}
         />
-        <Card.Body style={{ padding: 5 }}>
+        <Card.Body style={{ padding: 5, overflow: "auto" }}>
           <Card.Text
             style={{
               fontSize: "0.75rem"
@@ -47,6 +61,18 @@ class SpecimenCard extends Component {
             <span dangerouslySetInnerHTML={{ __html: specimen.title }}></span>
           </Card.Text>
         </Card.Body>
+        <Card.Footer
+          className="text-muted"
+          style={{ textAlign: "left", maxHeight: "40px", padding: "5px" }}
+        >
+          <a href={specimen.provider_homepage_uri} target="_new">
+            <Image
+              src={specimen.provider_logo_uri}
+              style={{ maxHeight: "30px" }}
+            />
+          </a>
+          {this.loadingButton(specimen.iiif_loaded)}
+        </Card.Footer>
       </Card>
     );
   }

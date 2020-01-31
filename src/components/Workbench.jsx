@@ -42,13 +42,26 @@ class Workbench extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     const { manifests } = nextProps;
     const { store, actions } = this.miradorInstance;
+
+    // add any new ones
     const manifestsToAdd = manifests.filter(id => {
       return !this.manifests.includes(id);
     });
-
     manifestsToAdd.map(id => {
       store.dispatch(actions.fetchManifest(id));
       this.manifests.push(id);
+      return id;
+    });
+
+    // remove any old ones
+    const manifestsToRemove = this.manifests.filter(id => {
+      return !manifests.includes(id);
+    });
+    manifestsToRemove.map(id => {
+      store.dispatch(actions.removeManifest(id));
+      this.manifests = this.manifests.filter(mid => {
+        return mid !== id;
+      });
       return id;
     });
 

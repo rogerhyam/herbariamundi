@@ -30,6 +30,11 @@ class CabinetOpenable extends Cabinet {
       return false;
     }
   }
+
+  getArrow = () => {
+    if (this.isOpen()) return " - ";
+    else return " + ";
+  };
 }
 
 export default CabinetOpenable;

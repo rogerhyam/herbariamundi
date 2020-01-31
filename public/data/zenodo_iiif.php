@@ -40,8 +40,7 @@ function process_specimen($row, $zoomify){
 
         if($file_for_thumbnail == null) $file_for_thumbnail = $file;
 
-        $img_local_path =  $cache_path . $file->key;
-        $tiles_local_path = $cache_path . pathinfo($file->key, PATHINFO_FILENAME);
+        $img_local_path =  $cache_path . $file->key;      
 
         file_put_contents($img_local_path, fopen($file->links->self, 'r'));
 

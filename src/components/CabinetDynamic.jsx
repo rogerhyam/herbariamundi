@@ -62,7 +62,9 @@ class CabinetDynamic extends CabinetOpenable {
       <li
         style={{
           ...this.state.style,
-          paddingTop: "0.5rem"
+          paddingTop: "0.5rem",
+          borderTop: "gray 1px dashed",
+          paddingBottom: "1em"
         }}
         draggable={true}
         onDragEnter={e => this.handleDragEnter(e)}
@@ -79,7 +81,8 @@ class CabinetDynamic extends CabinetOpenable {
           <span role="img" aria-label="Search">
             🗄️
           </span>{" "}
-          {this.props.title} ({this.props.folders.length})
+          {this.props.title}
+          {this.getArrow()}
         </button>
         {this.getFolderList()}
       </li>
@@ -93,7 +96,7 @@ class CabinetDynamic extends CabinetOpenable {
   getFolderList = () => {
     if (!this.isOpen()) return "";
     return (
-      <ul style={this.folderListStyle}>
+      <ul style={{ ...this.folderListStyle }}>
         {this.props.folders.map(f => (
           <FolderSpecimens
             key={f.id}

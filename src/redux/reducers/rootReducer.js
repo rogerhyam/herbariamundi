@@ -97,6 +97,19 @@ const rootReducer = (state = initialState, action) => {
       ];
       return { ...state };
 
+    case ActionTypes.WORKBENCH_REMOVE_SPECIMEN:
+      state.specimens.workbench.specimenIds = state.specimens.workbench.specimenIds.filter(
+        id => {
+          return id !== action.specimenId;
+        }
+      );
+      if (state.specimens.browser.associatedFolderId === "Workbench") {
+        state.specimens.browser.specimenIds = [
+          ...state.specimens.workbench.specimenIds
+        ];
+      }
+      return { ...state };
+
     case ActionTypes.SHOW_SPECIMENS:
       state.specimens.browser = { ...state.specimens.browser, ...action };
       delete state.specimens.browser.type;

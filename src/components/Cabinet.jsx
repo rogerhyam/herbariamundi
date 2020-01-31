@@ -10,15 +10,16 @@ class Cabinet extends MyHerbariumPart {
   folderListStyle = {
     listStyleType: "none",
     marginLeft: "0rem",
+    marginTop: "0.5rem",
     padding: 0
   };
 
   styleBlurred = {
-    border: "solid 1px white"
+    background: "white"
   };
 
   styleFocussed = {
-    border: "solid 1px gray"
+    background: "gray"
   };
 
   render() {

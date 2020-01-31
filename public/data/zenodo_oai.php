@@ -1,40 +1,50 @@
 <?php
 
-// follow the OAI-PMH end point for the target community in Zenodo
-// copy/upate any specimen records it mentions
-
 require_once('config.php');
-
 
 /* 
 
-We don't actually bother parsing the OAI response as it doesn't contain the data we want beyond the record key. We use that to call the rest API and get the JSON.
-    
-We look for all specimens modified since the last one we looked at.
+This pulls changed record ids into a database table so that zenodo_harvest can then call the api to get data for them.
 
-We only harvest the images the first time we meet a specimen not on modification as the files themselves are immutable.
-
+We don't actually bother parsing the OAI response as it doesn't contain the data we want beyond the record key.
 Protocol description here
 
 http://www.openarchives.org/OAI/openarchivesprotocol.html#ListRecords
 
-FIXME: handle deleting records
+FIXME: handle deleting records ?
+
+Example calls
+    
+https://zenodo.org/oai2d?verb=ListRecords&set=user-bravo&metadataPrefix=oai_dc?verb=ListRecords&set=user-bravo&metadataPrefix=oai_dc&from=2000-01-01T01:01:01Z
+https://zenodo.org/oai2d?verb=ListRecords&set=user-bravo&metadataPrefix=oai_dc&from=2020-01-22T14:42:37+00:00
+
+https://zenodo.org/oai2d?verb=ListRecords&resumptionToken=.eJwVjbEOgjAYhN_ln9G0CBFJGETt4CSKAi6m0kIaaNq0VUwM72698fsud1-wnDNI0TLCqyRcRSgJ0QZjHK8DsK1R4_gQ3sO-JvheH-OiioezvKEm7PPtP7kjH1RUTzm688Gh4qovTJJdWea6HHTU4CO5T1kGAWjac0jDAIaJmt5C-vXnzm-_LDeLp6Fv5VudUdIzzY0U1oo390xyRxl19GR4Jz7eKioerIV5_gGZSjyS.Xim_Fw.Ek1UJHVXc-KZp4_EbwMMLfDEI30
+https://zenodo.org/oai2d?verb=ListRecords&resumptionToken=.eJwVjT0LgzAYhP_LO9ui1oAKDrWtg1O1tn4sEjVK0GBIUhXE_970loN7jrsdJCEd-ObZQRcPeci1LcfV7hkgWzFPU001hnsRWVURoyRHY8o-ZmkP4fWvUEXb5OYNm1T6UGby5q-ORbcsC3k2cqe04qhagwAM4Hgg4NsGjCsWgwR_199Kb38lEadG4GXWrV7MTGecCEalpAvRGSMKd1jhpyA93TSdMa27Fo7jB5puPKU.Xim96Q.rnYvaJCeqcKBPJ9SPMeOK9VDgaQ
+
 
 */
-    
+
 $resumptionToken = true;
+
+// prime the start date
+if(!file_exists('zenodo_oai_from.txt')){
+    file_put_contents('zenodo_oai_from.txt', '2000-01-01T01:01:01Z');
+}
 
 while($resumptionToken){    
 
-    $start_date = get_last_update_date();
-
     $matches = array();
-    $url = ZENODO_OAI_PMH_URI . '&from=' . $start_date;
-    if(!is_bool($resumptionToken) && strlen($resumptionToken) > 0){
-        $url .= "&resumptionToken=$resumptionToken";
-    }
 
-    echo $url;
+    $start_date = file_get_contents('zenodo_oai_from.txt');
+
+    if(is_string($resumptionToken)){
+        // e.g. https://zenodo.org/oai2d?verb=ListRecords&resumptionToken=.eJwVjbEOgjAYhN_ln9G0xBIkYRC1A5MgirKYSgtp ...
+        $url = ZENODO_OAI_PMH_URI . "?verb=ListRecords&resumptionToken=$resumptionToken";
+    }else{
+        $url = ZENODO_OAI_PMH_URI . '?verb=ListRecords&set=user-bravo&metadataPrefix=oai_dc&from=' . $start_date;
+    }
+   
+    echo "$url\n";
     
     $response = file_get_contents($url);
 
@@ -48,7 +58,7 @@ while($resumptionToken){
 
     // work through the matching records
     foreach($matches[1] as $record_id){
-        import_specimen($record_id);
+        $mysqli->query("INSERT INTO zenodo_oai_changes (zenodo_id, change_noticed) VALUES ('$record_id', now()) ON DUPLICATE KEY UPDATE change_noticed = now();");
     }
 
     // if there is a resumptionToken then we go around a gain.
@@ -56,8 +66,9 @@ while($resumptionToken){
     $response = str_replace(array("\n", "\r"), '', $response); // just incase it is split cross lines
     $token_matches = array();
     if(preg_match('/<resumptionToken [^>]*>(.*)<\/resumptionToken>/', $response, $token_matches)){
-        $resumptionToken = $token_matches[1];
+        $resumptionToken = trim($token_matches[1]);
         echo "\nResumption token set so continuing: $resumptionToken \n";
+        echo "\nResumption token set so continuing: $token_matches[0] \n";
     }else{
         echo "\nNo resumption token set so stopping. \n";
         $resumptionToken = false;
@@ -65,125 +76,7 @@ while($resumptionToken){
 
 }
 
-// --------- F U N C T I O N S ---------------
-
-function import_specimen($record_id){
-
-    global $mysqli;
-
-    $url = "https://zenodo.org/api/records/$record_id";
-    $response = file_get_contents($url);
-    $record = json_decode($response);
-
-    // here on in we deal with concept IDs and record IDs so we can track versions
-    // The specimen ID is the concept ID. That is what we use in the CETAF_ID
-    // https://herbariamundi.org/10.5281/zenodo.3588258
-
-    // does a specimen record exist?
-    $stmt = $mysqli->prepare("SELECT s.id from specimen as s join cetaf_id as c on s.id = c.specimen_id where c.cetaf_id = ?;");
-    $cetaf_id = 'https://herbariamundi.org/' . $record->conceptdoi;
-    $stmt->bind_param('s', $cetaf_id);
-    $stmt->execute();
-    $stmt->bind_result($specimen_id);
-    if($stmt->fetch()){
-        // it does exist update it
-        $stmt->close();
-        update_specimen($specimen_id, $record);
-    }else{
-        // it doesn't exist create it
-        $stmt->close();
-        create_specimen($record);
-    }
-    
-}
-
-function update_specimen($specimen_id, $record){
-
-    global $mysqli;
-
-    // all that can change is the metadata.
-    // the ids all remain the same.
-    $title = $record->metadata->title;
-    $raw = json_encode($record);
-    $index_string = substr( strip_tags($record->metadata->description), 0, 1000);
-
-    $stmt = $mysqli->prepare("UPDATE specimen SET `title` = ?, `raw` = ?, `index_string` = ? WHERE id = ?");
-    if ( false===$stmt ) {
-        echo $mysqli->error;
-    }
-    $stmt->bind_param(
-        'sssi',
-        $title,
-        $raw,
-        $index_string,
-        $specimen_id
-    );
-    echo $mysqli->error;
-    $stmt->execute();
-    
-    echo "Updated $specimen_id \n";
-
-}
-
-function create_specimen($record){
-
-    global $mysqli;
-
-    // do this in a transaction as we need to be sure the cetaf_id and specimen tables keep in sync
-
-    $cetaf_id = 'https://herbariamundi.org/' . $record->conceptdoi;
-    //  $iiif_manifest_uri = "/iiif/presentation/" . $record->conceptrecid . '/manifest';
-    $title = $record->metadata->title;
-    // $thumbnail_path = "/iiif/image/" . $record->conceptrecid . "/full/150,/0/default.jpg";
-    $raw = json_encode($record);
-    $index_string = substr( strip_tags($record->metadata->description), 0, 1000);
-
-    $stmt_sp = $mysqli->prepare("INSERT INTO specimen (`title`, `raw`, `index_string`) VALUES (?,?,?);");
-    $stmt_sp->bind_param(
-        'sss',
-        $title,
-        $raw,
-        $index_string
-    );
-    $stmt_cetaf = $mysqli->prepare("INSERT INTO cetaf_id (`cetaf_id`, `specimen_id`) VALUES (?,?);");
-
-    $mysqli->begin_transaction(MYSQLI_TRANS_START_READ_WRITE);
-    $stmt_sp->execute();
-    $specimen_id = $mysqli->insert_id;
-    
-    if($specimen_id){
-        $stmt_cetaf->bind_param(
-            'si',
-            $cetaf_id,
-            $specimen_id
-        );
-        $stmt_cetaf->execute();
-    }
-
-    if($mysqli->error){
-        echo $mysqli->error;
-        $mysqli->rollback();
-    }else{
-        $mysqli->commit();
-    }
-    
-    echo "\nCreated $cetaf_id \n";
-/*
-id, iiif_manifest_uri, title, thumbnail_path, raw, index_string
-*/
-}
-
-function get_last_update_date(){
-    
-    global $mysqli;
-
-    // get the last modified zenodo specimen we have and work forward from there
-    $response = $mysqli->query("SELECT max(modified) as latest FROM mundi.specimen;");
-    $row = $response->fetch_assoc();
-    $phpdate = strtotime( $row['latest'] );
-
-    return date( 'c', $phpdate );
-
-}
+// update the from date to now.
+file_put_contents('zenodo_oai_from.txt', date( 'c' ));
 
 ?>

@@ -4,6 +4,7 @@ import DraggableTypes from "./DraggableTypes";
 import { connect } from "react-redux";
 import { removeFolder, removeSpecimen } from "../redux/actions/folderActions";
 import { removeCabinet } from "../redux/actions/cabinetActions";
+import { removeSpecimen as removeWorkbenchSpecimen } from "../redux/actions/workbenchActions";
 
 class FolderWaste extends Folder {
   constructor(props) {
@@ -41,10 +42,18 @@ class FolderWaste extends Folder {
         break;
 
       case DraggableTypes.SPECIMEN:
-        this.props.removeSpecimen(
-          e.dataTransfer.getData("associtedFolderId"),
-          e.dataTransfer.getData("specimenId")
-        );
+        if (e.dataTransfer.getData("associtedFolderId") === "Workbench") {
+          this.props.removeWorkbenchSpecimen(
+            e.dataTransfer.getData("specimenId")
+          );
+          console.log(e.dataTransfer.getData("specimenId"));
+        } else {
+          this.props.removeSpecimen(
+            e.dataTransfer.getData("associtedFolderId"),
+            e.dataTransfer.getData("specimenId")
+          );
+        }
+
         break;
 
       default:
@@ -77,6 +86,9 @@ class FolderWaste extends Folder {
     );
   }
 }
-export default connect(null, { removeFolder, removeCabinet, removeSpecimen })(
-  FolderWaste
-);
+export default connect(null, {
+  removeFolder,
+  removeCabinet,
+  removeSpecimen,
+  removeWorkbenchSpecimen
+})(FolderWaste);

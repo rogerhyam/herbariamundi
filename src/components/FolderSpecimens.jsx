@@ -98,14 +98,20 @@ class FolderSpecimens extends MyHerbariumPart {
           }}
         >
           <span role="img" aria-label="Folder">
-            📁
+            {this.getFolderIcon()}
           </span>{" "}
           {this.props.title} ({specimens.length})
         </button>
       </li>
     );
   }
+
+  getFolderIcon() {
+    if (this.props.focussed) return "📂";
+    else return "📁";
+  }
 }
+
 const mapStateToProps = (state, ownProps) => {
   let focussed = false;
   if (state.folders.focussedFolderId === ownProps.id) focussed = true;

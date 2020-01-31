@@ -7,8 +7,6 @@ import FolderEdit from "./FolderEdit";
 import CabinetTools from "./CabinetTools";
 import { connect } from "react-redux";
 import { fetchMyHerbarium } from "../redux/actions/fetchMyHerbariumActions";
-
-import Folder from "./Folder";
 import CabinetNew from "./CabinetNew";
 
 class MyHerbarium extends Component {
