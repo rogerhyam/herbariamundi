@@ -1,7 +1,11 @@
 RewriteEngine On
 
-# all calls to iiif URIs are handled by a router script
+# all iiif calls are handled by a router script
 RewriteRule ^iiif\/.*  data/router.php [END]
 
 # all .php files are in the data directory
 RewriteRule ([^\.]+).php data/$1.php [END]
+
+# calls to the cetaf_id signature
+# like this  https://data.herbariamundi.org/10.5281/zenodo.3613804
+RewriteRule ^(10\.[0-9]+/zenodo\.[0-9]+)$ data/cetaf_id_redirect.php?doi=$1 [END]

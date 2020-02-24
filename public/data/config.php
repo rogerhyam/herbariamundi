@@ -24,6 +24,9 @@ define('ZENODO_SPECIMEN_CACHE', 'data/zenodo_cache/'); // dev
 //define('PROTOCOL_HOST_PORT', 'http://bravo.rbge.info'); // live
 define('PROTOCOL_HOST_PORT', 'http://localhost:3000'); // dev
 
+// note core name is defined here
+define('SOLR_QUERY_URI','http://localhost:8983/solr/mundi1');
+
 // create and initialise the database connection
 $mysqli = new mysqli($db_host, $db_user, $db_password, $db_database);
 

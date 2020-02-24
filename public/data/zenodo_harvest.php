@@ -1,10 +1,31 @@
 <?php
 
 require_once('config.php');
+require_once('include/solr_functions.php');
 
 /* 
 Takes the Zenodo record id that have been stored in the database by the OAI harvester
-and calls them to update or create the specimen records.
+and calls them to update or create the specimen record and index it.
+
+
+Later .. 
+
+Auto tagging with family ending in aceae or 
+
+Apiaceae=Umbelliferae
+Arecaceae=Palmae 
+Asteraceae=Compositae
+Brassicaceae=Cruciferae
+Clusiaceae=Guttiferae
+Fabaceae=Leguminosae
+Lamiaceae=Labiatae
+Poaceae=Gramineae
+
+Also use regex to find lat/lon
+^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$
+groups 1 and 4 contain latitude and longitude respectively
+
+
 */
 
 echo "Starting harvest.\n";
@@ -21,6 +42,7 @@ while($row = $result->fetch_assoc()){
     sleep(1); // zenodo will block us if we go too fast
     $row_count++;
     echo "$row_count of $total_rows\n";
+break;
 }
 
 echo "Finished.\n";
@@ -31,13 +53,14 @@ echo "Finished.\n";
 function import_specimen($record_id){
 
     global $mysqli;
-
+  
     $url = "https://zenodo.org/api/records/$record_id";
+    echo "Calling Zenodo with : $url";
     $response = file_get_contents($url);
     $header = parseHeaders($http_response_header);
     
     if($header['reponse_code'] == '429'){
-        echo "Too many connections - waiting a minute then will try next.\n";
+        echo "Too many connections - waiting a minute then will try next one.\n";
         sleep(60);
         return;
     }
@@ -46,11 +69,12 @@ function import_specimen($record_id){
 
     // here on in we deal with concept IDs and record IDs so we can track versions
     // The specimen ID is the concept ID. That is what we use in the CETAF_ID
-    // https://herbariamundi.org/10.5281/zenodo.3588258
+    // https://data.herbariamundi.org/10.5281/zenodo.3588258
 
     // does a specimen record exist?
-    $stmt = $mysqli->prepare("SELECT s.id from specimen as s join cetaf_id as c on s.id = c.specimen_id where c.cetaf_id = ?;");
-    $cetaf_id = 'https://herbariamundi.org/' . $record->conceptdoi;
+    $specimen_id = null;
+    $stmt = $mysqli->prepare("SELECT id from specimen where cetaf_id_normative = ?;");
+    $cetaf_id = '//data.herbariamundi.org/' . $record->conceptdoi;
     $stmt->bind_param('s', $cetaf_id);
     $stmt->execute();
     $stmt->bind_result($specimen_id);
@@ -61,7 +85,14 @@ function import_specimen($record_id){
     }else{
         // it doesn't exist create it
         $stmt->close();
-        create_specimen($record);
+        $specimen_id = create_specimen($record);
+    }
+
+    // index it
+    if($specimen_id){
+        $out = solr_index_specimen_by_id($specimen_id);
+        solr_commit();
+        print_r($out);
     }
 
     // take it off the do list
@@ -76,86 +107,46 @@ function update_specimen($specimen_id, $record){
 
     // all that can change is the metadata.
     // the ids all remain the same.
-    $title = $record->metadata->title;
+    
     $raw = json_encode($record);
-    $index_string = substr( strip_tags($record->metadata->description), 0, 1000);
-
-    $stmt = $mysqli->prepare("UPDATE specimen SET `title` = ?, `raw` = ?, `index_string` = ? WHERE id = ?");
-    if ( false===$stmt ) {
-        echo $mysqli->error;
-    }
+    $stmt = $mysqli->prepare("UPDATE specimen SET `raw` = ? WHERE id = ?");
     $stmt->bind_param(
-        'sssi',
-        $title,
+        'si',
         $raw,
-        $index_string,
         $specimen_id
     );
-    echo $mysqli->error;
     $stmt->execute();
-    
+    echo $mysqli->error;    
     echo "Updated $specimen_id \n";
-
 }
 
 function create_specimen($record){
 
     global $mysqli;
 
-    // do this in a transaction as we need to be sure the cetaf_id and specimen tables keep in sync
+    $cetaf_id_normative = '//data.herbariamundi.org/' . $record->conceptdoi;
+    $cetaf_id_preferred = 'https:' . $cetaf_id_normative;
+    $raw_format = 'zenodo+json';
 
-    $cetaf_id = 'https://herbariamundi.org/' . $record->conceptdoi;
-    //  $iiif_manifest_uri = "/iiif/presentation/" . $record->conceptrecid . '/manifest';
-    $title = $record->metadata->title;
-    // $thumbnail_path = "/iiif/image/" . $record->conceptrecid . "/full/150,/0/default.jpg";
     $raw = json_encode($record);
-    $index_string = substr( strip_tags($record->metadata->description), 0, 1000);
 
-    $stmt_sp = $mysqli->prepare("INSERT INTO specimen (`title`, `raw`, `index_string`) VALUES (?,?,?);");
+    $stmt_sp = $mysqli->prepare("INSERT INTO specimen (`cetaf_id_normative`,`cetaf_id_preferred`,`raw`, `raw_format` ) VALUES (?,?,?,?);");
     $stmt_sp->bind_param(
-        'sss',
-        $title,
+        'ssss',
+        $cetaf_id_normative,
+        $cetaf_id_preferred,
         $raw,
-        $index_string
+        $raw_format
     );
-    $stmt_cetaf = $mysqli->prepare("INSERT INTO cetaf_id (`cetaf_id`, `specimen_id`) VALUES (?,?);");
-
-    $mysqli->begin_transaction(MYSQLI_TRANS_START_READ_WRITE);
     $stmt_sp->execute();
-    $specimen_id = $mysqli->insert_id;
-    
-    if($specimen_id){
-        $stmt_cetaf->bind_param(
-            'si',
-            $cetaf_id,
-            $specimen_id
-        );
-        $stmt_cetaf->execute();
-    }
-
     if($mysqli->error){
         echo $mysqli->error;
-        $mysqli->rollback();
+        return null;
     }else{
-        $mysqli->commit();
+        $specimen_id = $mysqli->insert_id;
+        echo "\nCreated $specimen_id as $cetaf_id_preferred \n";
+        return $specimen_id;
     }
-    
-    echo "\nCreated $cetaf_id \n";
-/*
-id, iiif_manifest_uri, title, thumbnail_path, raw, index_string
-*/
-}
-
-function get_last_update_date(){
-    
-    global $mysqli;
-
-    // get the last modified zenodo specimen we have and work forward from there
-    $response = $mysqli->query("SELECT max(modified) as latest FROM mundi.specimen;");
-    $row = $response->fetch_assoc();
-    $phpdate = strtotime( $row['latest'] );
-
-    return date( 'c', $phpdate );
 
 }
 

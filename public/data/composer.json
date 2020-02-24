@@ -1,5 +1,6 @@
 {
   "require": {
-    "daniel-km/zoomify": "^1.0"
+    "daniel-km/zoomify": "^1.0",
+    "easyrdf/easyrdf": "*"
   }
 }

@@ -30,7 +30,7 @@ class HerbariaMundi extends Component {
     return (
       <Provider store={store}>
         <Navbar bg="dark" variant="dark" expand="lg">
-          <Navbar.Brand href="#home">BRAVO Compare</Navbar.Brand>
+          <Navbar.Brand href="#home">Herbaria Mundi</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto"></Nav>
@@ -74,14 +74,9 @@ class HerbariaMundi extends Component {
               <p>
                 This is a proof of concept application to facilitate online
                 identification by matching of forest plot voucher specimens with
-                reference specimens in the world's herbaria. It was developed as
-                part of a project funded by the British Council and Newton Fund.
+                reference specimens in the world's herbaria.
               </p>
-              <p>
-                This application is not intended to be feature complete and
-                useable at this stage but will form the foundation of future
-                projects that will take the concept into full production.
-              </p>
+
               <h3>Video Overview</h3>
               <center>
                 <iframe
@@ -94,6 +89,12 @@ class HerbariaMundi extends Component {
                 ></iframe>
               </center>
               <p>&nbsp;</p>
+
+              <h3>Support</h3>
+              <p>
+                Initial development work was carried out as part of a project
+                funded by the British Council and Newton Fund.
+              </p>
 
               <h3>About the British Council</h3>
               <p>

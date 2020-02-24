@@ -4,9 +4,6 @@ require_once('config.php');
 
 // This file handles the routing for IIIF requests
 
-
-// this bit is used during development to simulate .htaccess for the iiif directory
-// in production uri's starting with iiif don't come here
 $matches = array();
 if (!preg_match('/\/iiif(.*)/', $_SERVER["REQUEST_URI"], $matches)) {
     return false;  
