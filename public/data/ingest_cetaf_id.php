@@ -16,7 +16,7 @@ if(php_sapi_name() === 'cli'){
 
     $cli_mode = true;
 
-    $ops = getopt('i:f:');
+    $ops = getopt('i:f:l:o:');
 
     // the i option is a single id to be ingested
     // the option can be repeated
@@ -31,6 +31,22 @@ if(php_sapi_name() === 'cli'){
     // the f option is a file containing ids one per line
     if(isset($ops['f'])){
         $file_ids = file($ops['f']);
+
+        // the l option sets a limit on the number pulled in from the file
+        if(isset($ops['l'])){
+
+            // we can offset as well
+            if(isset($ops['o'])) $offset = $ops['o'];
+            else $offset = 0;
+
+            $file_ids = array_slice($file_ids, $offset, $ops['l']);
+        }
+
+        // the n option means we only ingest if they are new to us
+        if(isset($ops['n'])) $new_only = true;
+        else $new_only = false;
+
+        // combine any in file with any on command line
         $cetaf_ids= array_merge($file_ids, $cetaf_ids);
     }
 
@@ -64,6 +80,12 @@ foreach($cetaf_ids as $cetaf_id){
     // check it is a valid uri
     if(!filter_var($cetaf_id, FILTER_VALIDATE_URL) ){
         $out[$cetaf_id]['error'] = "Not a valid URL";
+        continue;
+    }
+
+    // check if we already have it.
+    if($new_only && db_specimen_exists($cetaf_id)){
+        $out[$cetaf_id]['exists'] = "Specimen already in database so continuing to next";
         continue;
     }
 

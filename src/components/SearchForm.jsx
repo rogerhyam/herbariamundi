@@ -18,8 +18,23 @@ class SearchForm extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    console.log(this.state);
-    this.props.fetchSpecimens(this.state);
+
+    // we build the SOLR search query here.
+    /* e.g.
+    {
+      query: "memory",
+      limit: 5,     // this single-valued parameter was overwritten.
+      filter: ["inStock:true","cat:electronics"]    // this multi-valued parameter was appended to.
+    }
+    */
+
+    let query = {
+      query: this.state.searchText,
+      limit: 30
+    };
+
+    console.log(query);
+    this.props.fetchSpecimens(query);
   };
 
   render() {

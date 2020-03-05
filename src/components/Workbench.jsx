@@ -89,7 +89,7 @@ class Workbench extends Component {
 const mapStateToProps = state => {
   const manifests = [];
   state.specimens.workbench.specimenIds.map(id => {
-    manifests.push(state.specimens.byId[id].iiif_manifest_uri);
+    manifests.push(state.specimens.byId[id].iiif_manifest_uri_ss[0]);
     return id;
   });
   return { manifests };

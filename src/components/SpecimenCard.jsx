@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import Card from "react-bootstrap/Card";
 import Image from "react-bootstrap/Image";
-import Button from "react-bootstrap/Button";
+import Popover from "react-bootstrap/Popover";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import DraggableTypes from "./DraggableTypes";
 
 class SpecimenCard extends Component {
@@ -10,70 +11,156 @@ class SpecimenCard extends Component {
     this.state = {};
   }
 
-  handleDragStart = (e, specimenId, associtedFolderId) => {
+  handleDragStart = (e, specimenDbId, specimenCetafId, associtedFolderId) => {
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("specimenId", specimenId);
+    e.dataTransfer.setData("specimenDbId", specimenDbId);
+    e.dataTransfer.setData("specimenCetafId", specimenCetafId);
     e.dataTransfer.setData("associtedFolderId", associtedFolderId);
     e.dataTransfer.setData("type", DraggableTypes.SPECIMEN);
     e.dataTransfer.setDragImage(e.target, 10, 10);
   };
 
-  loadingButton = isLoaded => {
-    if (isLoaded) {
-      return "";
+  getSpecimenPopover() {
+    const { specimen, associatedFolderId } = this.props;
+
+    const title = specimen.hasOwnProperty("scientific_name_ss")
+      ? specimen.scientific_name_ss
+      : "Specimen";
+
+    const fields = [
+      {
+        name: "collector_ss",
+        label: "Collector"
+      },
+      {
+        name: "collector_number_ss",
+        label: "Number"
+      },
+      {
+        name: "scientific_name_ss",
+        label: "Name"
+      },
+      {
+        name: "family_ss",
+        label: "Family"
+      },
+      {
+        name: "genus_ss",
+        label: "Genus"
+      },
+      {
+        name: "specific_epithet_ss",
+        label: "epithet"
+      },
+      {
+        name: "country_code_ss",
+        label: "Country"
+      }
+    ];
+
+    specimen.test_ss = ["banana", "apple"];
+
+    return (
+      <Popover id="popover-basic">
+        <Popover.Title as="h3">{title}</Popover.Title>
+        <Popover.Content>
+          <table>
+            <tbody>
+              {fields.map(f => {
+                // do nothing if we lac that property
+                if (!specimen.hasOwnProperty(f.name)) return "";
+                // otherwise write it as a label
+                return (
+                  <tr key={f.name}>
+                    <th style={{ textAlign: "right", verticalAlign: "top" }}>
+                      {f.label}:
+                    </th>
+                    <td style={{ textAlign: "left", verticalAlign: "top" }}>
+                      {this.getSpecimenPopoverTableValue(specimen, f)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </Popover.Content>
+      </Popover>
+    );
+  }
+
+  getSpecimenPopoverTableValue(specimen, field) {
+    if (Array.isArray(specimen[field.name])) {
+      return specimen[field.name].join("; ");
     } else {
-      return (
-        <Button variant="outline-secondary" size="sm">
-          Load
-        </Button>
-      );
+      return specimen[field.name];
     }
-  };
+  }
+
+  getCetafIdPopover(cetafId) {
+    return (
+      <Popover id={cetafId}>
+        <Popover.Content style={{ fontSize: "60%" }}>{cetafId}</Popover.Content>
+      </Popover>
+    );
+  }
 
   render() {
     const { specimen, associatedFolderId } = this.props;
 
+    let thumbnailUri = "/data/thumbnail_cache/" + specimen.thumbnail_path_s;
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+      thumbnailUri =
+        "http://127.0.0.1:3100/data/thumbnail_cache/" +
+        specimen.thumbnail_path_s;
+    }
+
     return (
-      <Card
+      <div
         key={specimen.id}
         draggable={true}
         onDragStart={e =>
-          this.handleDragStart(e, specimen.id, associatedFolderId)
+          this.handleDragStart(
+            e,
+            specimen.db_id_i,
+            specimen.id,
+            associatedFolderId
+          )
         }
         style={{
-          width: "150px", // fixed pixel width matched to the size the thumbnails are
-          height: "20rem", // fixed height or the float left won't work
+          width: "200px", // fixed pixel width matched to the size the thumbnails are
+          height: "350px", // fixed height or the float left won't work
           float: "left",
           margin: "0.2rem"
         }}
       >
-        <Card.Img
-          variant="top"
-          src={specimen.thumbnail_uri}
-          draggable={false}
-        />
-        <Card.Body style={{ padding: 5, overflow: "auto" }}>
-          <Card.Text
-            style={{
-              fontSize: "0.75rem"
-            }}
-          >
-            <span dangerouslySetInnerHTML={{ __html: specimen.title }}></span>
-          </Card.Text>
-        </Card.Body>
-        <Card.Footer
-          className="text-muted"
-          style={{ textAlign: "left", maxHeight: "40px", padding: "5px" }}
+        <OverlayTrigger
+          trigger={["hover", "click"]}
+          placement="auto"
+          overlay={this.getSpecimenPopover()}
         >
-          <a href={specimen.provider_homepage_uri} target="_new">
-            <Image
-              src={specimen.provider_logo_uri}
-              style={{ maxHeight: "30px" }}
-            />
-          </a>
-          {this.loadingButton(specimen.iiif_loaded)}
-        </Card.Footer>
-      </Card>
+          <img
+            style={{ width: "200px" }}
+            src={thumbnailUri}
+            draggable={false}
+          />
+        </OverlayTrigger>
+
+        <div style={{ textAlign: "right" }}>
+          <OverlayTrigger
+            trigger={["hover", "click"]}
+            placement="auto"
+            overlay={this.getCetafIdPopover(specimen.cetaf_id_preferred_s)}
+          >
+            <a
+              style={{ fontSize: "60%" }}
+              href={specimen.cetaf_id_preferred_s}
+              target="_new"
+            >
+              CETAF ID 🔗
+            </a>
+          </OverlayTrigger>
+        </div>
+      </div>
     );
   }
 }

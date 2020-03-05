@@ -24,6 +24,26 @@ function solr_add_docs($docs){
     return $response->body;
 }
 
+function solr_run_search($query){
+    $solr_query_uri = SOLR_QUERY_URI . '/query';
+    $response = curl_post_json($solr_query_uri, json_encode($query));
+    return $response->body;
+}
+
+function solr_get_doc_by_id($id){
+    // this uses the RealTime Get feature
+    $solr_query_uri = SOLR_QUERY_URI . '/get?id=' . $id;
+    $ch = get_curl_handle($solr_query_uri);
+    $response = run_curl_request($ch);
+    if(isset($response->body)){
+        $body = json_decode($response->body);
+        if(isset($body->doc)){
+            return $body->doc;
+        }
+    }
+    return null;
+}
+
 function solr_commit($in = 0){
     $solr_update_uri = SOLR_QUERY_URI . '/update';
     $command = new stdClass();
@@ -41,6 +61,13 @@ function solr_index_specimen_by_id($row_id){
     switch ($specimen_data['raw_format']) {
         case 'rdf+xml':
             $solr_doc = parse_rdf_xml($specimen_data['raw'], $specimen_data['cetaf_id_normative']);
+            /*
+            FIXME - where do we get these for CETAF IDs as the RDF may not contain them.
+            $solr_doc['provider_code_s'] = ??;
+            $solr_doc['provider_name_s'] = ??;
+            $solr_doc['provider_logo_uri_s'] = ??;
+            $solr_doc['provider_homepage_uri_s'] = ??; // is there a dwc link?
+            */
             break;
         case 'zenodo+json':
             $solr_doc = parse_zenodo_json($specimen_data['raw'], $specimen_data['cetaf_id_normative']);
@@ -49,6 +76,28 @@ function solr_index_specimen_by_id($row_id){
 
     $solr_doc->db_id_i = $row_id; // just incase we need it
     $solr_doc->cetaf_id_preferred_s = $specimen_data['cetaf_id_preferred'];
+
+    // Check for cached thumbnail here and add it to the doc.
+    // we need a predictable thumbnail cache because it could get big and we want to partition it predictably
+    // so we base it on the row number and imagine 100 million sprecimens
+    // zero pad the row number to 9 long 
+    $path = preg_replace('/^([0-9]{3})([0-9]{3})([0-9]{3})/', '$1/$2/', str_pad($row_id, 9, '0', STR_PAD_LEFT));
+    $path .= $row_id . '.jpg';
+    $solr_doc->thumbnail_path_s = $path;
+
+    // nothing should be in the index unless it has a thumbnail so even if this 
+    // is slow it is necessary and counts as part of indexing process!
+    $thumbnail_remote_uri = get_thumbnail_uri_from_manifest($solr_doc->iiif_manifest_uri_ss[0], 400);
+    $solr_doc->thumbnail_remote_uri_s = $thumbnail_remote_uri;
+
+    $thumb_local_path = THUMBNAIL_CACHE . $path;
+    // does the thumbnail alread exist?
+    if(!file_exists($thumb_local_path)){
+        // create the dir if needed
+        @mkdir(substr($thumb_local_path,0, -6), 0777, true);
+        file_put_contents($thumb_local_path, fopen($thumbnail_remote_uri, 'r'));
+    }
+
     $out['solr_doc'] = $solr_doc;
     $out['solr_add_response'] = solr_add_docs(array($solr_doc));
     
@@ -77,6 +126,9 @@ function parse_zenodo_json($json, $cetaf_id_normative){
     // do the big text areas first.
     $description = strip_tags($zenodo_doc->metadata->description);
     $solr_doc['description_s'] = $description;
+
+    // raw txt
+    $solr_doc['raw_txt'][] = preg_replace('/\s+/', ' ', $title . ' ' . $description);
 
     // FIXME: add key words in here
     
@@ -116,61 +168,24 @@ function parse_zenodo_json($json, $cetaf_id_normative){
         $solr_doc['collection_year_i'][] = $matches[1];
     }
 
+    // most importantly the manifest
+    // IIIF Manifest URI 
+    // https://data.herbariamundi.org/iiif/p/3588258/manifest
+    $solr_doc['iiif_manifest_uri_ss'][] = 'https://data.herbariamundi.org/iiif/p/' . $zenodo_doc->conceptrecid . '/manifest';
 
-/*
-    // Scientific Name -- can't do it without ids $solr_doc['scientific_name_ss'][] = ??
-    // epithet $solr_doc['specific_epithet_ss'][]  -- can't do
+    // lat/lon - extract or use
+    /*
+        Also use regex to find lat/lon
+        ^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$
+        groups 1 and 4 contain latitude and longitude respectively
+    */
 
-   
-
-    // collector
-    $solr_doc['collector_ss'][] = $lit->getValue();
-    
-    // collector number
-    $solr_doc['collector_number_ss'][] = $lit->getValue();
 
     // institution code
-    $solr_doc['instituted_code_ss'][] = $lit->getValue();
-
-foreach($resource->all('<http://rs.tdwg.org/dwc/terms/earliestDateCollected>', 'literal') as $lit){
-
-    // pull the year out of the date string
-    $matches = array();
-    if(preg_match('/([0-9]{4})/', $lit->getValue(), $matches)){
-        $solr_fields['collection_year_i'][] = $matches[1];
-    }
-    
-}
-
-// decimal lat lon - there should only be one pair but we do all combinations if there are more!
-foreach($resource->all('<http://rs.tdwg.org/dwc/terms/decimalLatitude>', 'literal') as $lat_lit){
-    foreach($resource->all('<http://rs.tdwg.org/dwc/terms/decimalLongitude>', 'literal') as $lon_lit){
-        $solr_fields['collection_location_p'][] = $lat_lit->getValue() . ',' . $lon_lit->getValue();
-    }
-}
-
-// raw text
-$solr_fields['raw_txt'][] = preg_replace('/\s+/', ' ', strip_tags($xml_rdf_string));
-
-
-// try to find a manifest of high res image - this may be institution specific.
-
-// IIIF Manifest URI
-foreach($resource->all('<http://purl.org/dc/terms/relation>', 'resource') as $res){
-
-    // what dc:type is it?
-    foreach($res->all('<http://purl.org/dc/terms/type>', 'resource') as $type){
-        if($type->getUri() == 'http://purl.org/dc/dcmitype/Image'){
-            $solr_fields['image_uri_ss'][] = $res->getUri();
-        }
-        if($type->getUri() == 'http://iiif.io/api/presentation/3#Manifest'){
-            $solr_fields['iiif_manifest_uri_ss'][] = $res->getUri();
-        }
-    }
-
-    
-}
-*/
+    $solr_doc['provider_code_s'] = 'Zenodo';
+    $solr_doc['provider_name_s'] = 'Zenodo';
+    $solr_doc['provider_logo_uri_s'] = 'https://about.zenodo.org/static/img/logos/zenodo-black-border.svg';
+    $solr_doc['provider_homepage_uri_s'] = "https://zenodo.org/communities/herbariamundi";
 
     return (object)$solr_doc;
 }
@@ -239,6 +254,9 @@ function parse_rdf_xml($xml, $cetaf_id_normative){
     
     curl_setopt($ch, CURLOPT_POSTFIELDS, $post_params);
     $response = run_curl_request($ch);
+
+    print_r($response);
+
     $parsed_rdf = json_decode($response->body);
 
     // we have the fields to add a solr document now. Let's do it!
@@ -247,5 +265,82 @@ function parse_rdf_xml($xml, $cetaf_id_normative){
     return $solr_doc;
 }
 
+function get_thumbnail_uri_from_manifest($manifest_uri, $size){
+
+    $json = file_get_contents($manifest_uri);
+    $manifest = json_decode($json);
+    
+    // is it version 1 or 2?
+    $version = false;
+    foreach($manifest->{'@context'} as $context){
+        if($context == 'http://iiif.io/api/presentation/2/context.json') $version = 2;
+        if($context == 'http://iiif.io/api/presentation/3/context.json') $version = 3;
+    }
+    
+    switch ($version) {
+        
+        case 2:
+            $image_uri = extract_image_uri_from_v2_manifest($manifest);
+        break;
+        
+        case 3:
+            $image_uri = extract_image_uri_from_v3_manifest($manifest);
+        break;
+
+        default:
+            return null;
+    }
+
+    return $image_uri . '/full/,' .  $size . '/0/default.jpg';
+
+}
+
+
+function extract_image_uri_from_v2_manifest($manifest){
+
+    foreach($manifest->sequences as $sequence){
+        foreach($sequence->canvases as $canvas){
+            foreach($canvas->images as $image){
+                if(isset($image->resource->service) && $image->resource->{'@type'} == 'dctypes:Image'){
+                    return $image->resource->service->{'@id'};
+                }
+            }
+        }
+    }
+    return null;
+    
+}
+
+function extract_image_uri_from_v3_manifest($manifest){
+
+    // get the first canvas item
+    foreach($manifest->items as $item){
+        if($item->type != 'Canvas') continue;
+        else $canvas = $item;
+    }
+
+    // it has an AnnotationPage in its items
+    foreach($canvas->items as $item){
+        if($item->type != 'AnnotationPage') continue;
+        else $annotation_page = $item;
+    }
+
+    // it has annotations with painting intent
+    foreach($annotation_page->items as $item){
+        if($item->type != 'Annotation') continue;
+        if(strcasecmp($item->motivation, 'painting') !== 0) continue; // painting may not be in right case
+        else $annotation = $item;
+    }
+
+    foreach($annotation->body->service as $service){
+        if($service->type == 'ImageService3'){
+            return $service->id;
+        }
+    }
+
+    // got to here so something went wrong
+    return null;
+
+}
 
 ?>

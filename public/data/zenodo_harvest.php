@@ -21,10 +21,6 @@ Fabaceae=Leguminosae
 Lamiaceae=Labiatae
 Poaceae=Gramineae
 
-Also use regex to find lat/lon
-^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$
-groups 1 and 4 contain latitude and longitude respectively
-
 
 */
 

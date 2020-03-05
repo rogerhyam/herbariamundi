@@ -6,6 +6,7 @@ public/data/vendor
 
 # data stuff
 public/data/zenodo_cache
+public/data/thumbnail_cache
 
 # dependencies
 /node_modules
@@ -14,6 +15,7 @@ public/data/zenodo_cache
 
 # testing
 /coverage
+_*
 
 # production
 /build
@@ -28,3 +30,4 @@ public/data/zenodo_cache
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+public/data/e_specimens.txt

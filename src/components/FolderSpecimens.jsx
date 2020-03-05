@@ -45,15 +45,15 @@ class FolderSpecimens extends MyHerbariumPart {
         console.log("Folder dropped");
         break;
       case DraggableTypes.SPECIMEN:
-        const spid = e.dataTransfer.getData("specimenId");
+        const specimenDbId = e.dataTransfer.getData("specimenDbId");
 
         // prevent double adding
         const specimenIds = this.props.specimens.map(sp => sp.id);
-        if (specimenIds.includes(spid)) {
+        if (specimenIds.includes(specimenDbId)) {
           alert("Specimens can only be added to a folder once.");
           break;
         } else {
-          this.props.addSpecimen(this.props.id, spid);
+          this.props.addSpecimen(this.props.id, specimenDbId);
           break;
         }
 

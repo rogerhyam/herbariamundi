@@ -1,6 +1,7 @@
 <?php
 
 require_once('config.php');
+require_once('include/solr_functions.php');
 
 $out = array();
 $out['folders'] = array();
@@ -21,54 +22,17 @@ while($row = $r->fetch_assoc()){
     $folder['description'] = $row['description'];
 
     $folder['specimenIds'] = array();
-    $r2 = $mysqli->query("SELECT specimen_id from specimen_placement WHERE folder_id = {$folder['id']} AND owner_id = $user_id");
+    $sql = "SELECT s.cetaf_id_normative from specimen_placement as p join specimen as s on p.specimen_id = s.id WHERE p.folder_id = {$folder['id']} AND p.owner_id = $user_id";
+    $r2 = $mysqli->query($sql);
     while($row2 = $r2->fetch_assoc()){
-        $folder['specimenIds'][] = $row2['specimen_id'];
-        $all_specimen_ids[] = $row2['specimen_id'];
-    }
+        
+        $folder['specimenIds'][] = $row2['cetaf_id_normative'];
 
+        // get the actual specimen from solr
+        $out['specimens']['byId'][$row2['cetaf_id_normative']] = solr_get_doc_by_id($row2['cetaf_id_normative']);
+
+    }
     $out['folders'][$folder['id']] = $folder;
-}
-
-// add all the specimens that were mentioned in folders.
-if(count($all_specimen_ids) > 0){
-
-    $all_specimen_ids = array_unique($all_specimen_ids);
-    $all_specimens_list = implode(',', $all_specimen_ids);
-    $sql = "SELECT * from specimen as s join cetaf_id as c on s.id = c.specimen_id where s.id in ($all_specimens_list)";
-    $out['specimens']['sql'] = $sql; // FIXME
-    $result = $mysqli->query($sql);
-    while( $row = $result->fetch_assoc() ) {
-        $specimen = new stdClass();
-        $specimen->id = $row['id'];
-        $specimen->cetaf_id = $row['cetaf_id'];
-        $specimen->title =  $row['title'];
-        $specimen->iiif_manifest_uri = $row['iiif_manifest_uri'];
-        $specimen->thumbnail_uri = $row['thumbnail_path'];
-        $specimen->iiif_loaded = true;
-
-        // we need to work out the source of the specimen
-        // in herbariamundi this will be done at index time but here 
-        // we need to clunge it
-        if(strpos($specimen->iiif_manifest_uri, "https://iiif.rbge.org.uk") === 0){
-            $specimen->provider_logo_uri = 'https://iiif.rbge.org.uk/herb/rbge_logo.png';
-            $specimen->provider_homepage_uri = "http://www.rbge.org.uk";
-        }else{
-            $specimen->provider_logo_uri = 'https://about.zenodo.org/static/img/logos/zenodo-black-border.svg';
-            $specimen->provider_homepage_uri = "https://zenodo.org/communities/herbariamundi";
-
-            // we also fix the thumbnail if it doesn't have on created yet
-            if(!$specimen->thumbnail_uri){
-                $z = json_decode($row['raw']);
-                $specimen->thumbnail_uri = $z->links->thumbs->{'250'};
-                $specimen->iiif_loaded = false;
-            }
-
-        }
-
-        $out['specimens']['byId'][$specimen->id] = $specimen;
-
-    }
 }
 
 // populate the cabinets

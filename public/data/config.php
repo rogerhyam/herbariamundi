@@ -19,6 +19,10 @@ define('ZENODO_OAI_PMH_URI', 'https://zenodo.org/oai2d');
 //define('ZENODO_SPECIMEN_CACHE', 'zenodo_cache/'); // live
 define('ZENODO_SPECIMEN_CACHE', 'data/zenodo_cache/'); // dev
 
+
+//define('THUMBNAIL_CACHE', 'thumbnail_cache/'); // live
+define('THUMBNAIL_CACHE', 'thumbnail_cache/'); // dev
+
 // unfortunately the dev vs live proxying get so complicated that dynamically 
 // detecting the host and ip is not possible. Better to set it as config here
 //define('PROTOCOL_HOST_PORT', 'http://bravo.rbge.info'); // live

@@ -21,7 +21,6 @@ error_reporting(E_ERROR | E_PARSE); // there are a bunch of deprecation warnings
 
 $out = array();
 
-// IMPLEMENT ME.
 $xml_rdf_string = $_POST['rdf_xml'];
 $cetaf_id_normative = $_POST['cetaf_id_normative'];
 

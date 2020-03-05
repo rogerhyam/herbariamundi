@@ -60,14 +60,21 @@ const rootReducer = (state = initialState, action) => {
         }
       };
     case ActionTypes.FETCH_SPECIMENS_SUCCESS:
+      // convert specimens returned into a list by id
+      let searchResultList = [];
+      let newSpecimenList = { ...state.specimens.byId };
+      action.response.docs.forEach(doc => {
+        searchResultList.push(doc.id);
+        newSpecimenList[doc.id] = doc;
+      });
       return {
         ...state,
         specimens: {
           ...state.specimens,
           loading: false,
-          byId: { ...state.specimens.byId, ...action.response.specimens },
+          byId: newSpecimenList,
           browser: {
-            specimenIds: Object.keys(action.response.specimens),
+            specimenIds: searchResultList,
             loading: false,
             error: null
           }

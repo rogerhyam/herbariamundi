@@ -34,8 +34,8 @@ class FolderWorkbench extends Folder {
     switch (e.dataTransfer.getData("type")) {
       case DraggableTypes.SPECIMEN:
         console.log("specimen dropped on workbench");
-        console.log(e.dataTransfer.getData("specimenId"));
-        this.props.addSpecimen(e.dataTransfer.getData("specimenId"));
+        console.log(e.dataTransfer.getData("specimenCetafId"));
+        this.props.addSpecimen(e.dataTransfer.getData("specimenCetafId"));
         break;
       default:
         // FIXME - nice modal dialogue here

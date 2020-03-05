@@ -14,9 +14,10 @@ function get_folder($folder_id){
     $folder['description'] = $row['description'];
 
     $folder['specimenIds'] = array();
-    $r2 = $mysqli->query("SELECT specimen_id from specimen_placement WHERE folder_id = $folder_id AND owner_id = $user_id");
+    //$r2 = $mysqli->query("SELECT specimen_id from specimen_placement WHERE folder_id = $folder_id AND owner_id = $user_id");
+    $r2 = $mysqli->query("SELECT s.cetaf_id_normative from specimen_placement as p join specimen as s on p.specimen_id = s.id WHERE p.folder_id = $folder_id AND p.owner_id = $user_id");
     while($row2 = $r2->fetch_assoc()){
-        $folder['specimenIds'][] = $row2['specimen_id'];
+        $folder['specimenIds'][] = $row2['cetaf_id_normative'];
     }
 
     return $folder;

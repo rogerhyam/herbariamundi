@@ -78,11 +78,11 @@ export const removeFolderFailure = error => ({
 });
 
 // ADD SPECIMEN
-export function addSpecimen(folderId, specimenId) {
+export function addSpecimen(folderId, specimenDbId) {
   return dispatch => {
     const requestOptions = {
       method: "POST",
-      body: JSON.stringify({ folderId, specimenId })
+      body: JSON.stringify({ folderId, specimenDbId })
     };
 
     return fetch("/folder_add_specimen.php", requestOptions)
