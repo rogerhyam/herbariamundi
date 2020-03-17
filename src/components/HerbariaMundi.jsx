@@ -82,7 +82,7 @@ class HerbariaMundi extends Component {
                 <iframe
                   width="560"
                   height="315"
-                  src="https://www.youtube.com/embed/L0acOMR3HHo"
+                  src="https://www.youtube.com/embed/_4DuNBVsWW8"
                   frameborder="0"
                   allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                   allowfullscreen
@@ -93,7 +93,11 @@ class HerbariaMundi extends Component {
               <h3>Support</h3>
               <p>
                 Initial development work was carried out as part of a project
-                funded by the British Council and Newton Fund.
+                funded by the British Council and Newton Fund. It is now being
+                added to as part of Synthesys+. It is very much work in
+                progress! Contact{" "}
+                <a href="mailto:rhyam@rbge.org.uk">Roger Hyam</a> with any
+                comments.
               </p>
 
               <h3>About the British Council</h3>

@@ -54,6 +54,9 @@ function solr_commit($in = 0){
 
 function solr_index_specimen_by_id($row_id){
 
+    global $mysqli;
+    global $herbaria_mundi_providers; // we only want to load this once.
+
     $out = array();
 
     $specimen_data = db_get_specimen_data_by_row_id($row_id);
@@ -61,13 +64,6 @@ function solr_index_specimen_by_id($row_id){
     switch ($specimen_data['raw_format']) {
         case 'rdf+xml':
             $solr_doc = parse_rdf_xml($specimen_data['raw'], $specimen_data['cetaf_id_normative']);
-            /*
-            FIXME - where do we get these for CETAF IDs as the RDF may not contain them.
-            $solr_doc['provider_code_s'] = ??;
-            $solr_doc['provider_name_s'] = ??;
-            $solr_doc['provider_logo_uri_s'] = ??;
-            $solr_doc['provider_homepage_uri_s'] = ??; // is there a dwc link?
-            */
             break;
         case 'zenodo+json':
             $solr_doc = parse_zenodo_json($specimen_data['raw'], $specimen_data['cetaf_id_normative']);
@@ -75,8 +71,27 @@ function solr_index_specimen_by_id($row_id){
     }
 
     $solr_doc->db_id_i = $row_id; // just incase we need it
-    $solr_doc->cetaf_id_preferred_s = $specimen_data['cetaf_id_preferred'];
+    $solr_doc->cetaf_id_preferred_s = $specimen_data['cetaf_id_preferred']; // the one we use for links
 
+
+    // we get the provider information by mapping the cetaf uri to a row in the db
+    // as we can't be 100% sure of getting it from the RDF or Zenodo or wherever and it is important.
+    if(!$herbaria_mundi_providers){
+        $result = $mysqli->query("SELECT * FROM provider");
+        $herbaria_mundi_providers = $result->fetch_all(MYSQLI_ASSOC);
+        $result -> free_result();
+    }
+
+    foreach ($herbaria_mundi_providers as $provider) {
+        $regex = '/' . $provider['uri_pattern'] . '/';
+        echo $regex . " " . $solr_doc->id . "\n";
+        if(preg_match($regex, $solr_doc->id)){
+            $solr_doc->provider_name_s = $provider['name'];
+            $solr_doc->provider_logo_path_s = $provider['logo_path'];
+            $solr_doc->provider_homepage_uri_s = $provider['home_uri'];
+            break;
+        }
+    }
     // Check for cached thumbnail here and add it to the doc.
     // we need a predictable thumbnail cache because it could get big and we want to partition it predictably
     // so we base it on the row number and imagine 100 million sprecimens
@@ -179,13 +194,6 @@ function parse_zenodo_json($json, $cetaf_id_normative){
         ^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$
         groups 1 and 4 contain latitude and longitude respectively
     */
-
-
-    // institution code
-    $solr_doc['provider_code_s'] = 'Zenodo';
-    $solr_doc['provider_name_s'] = 'Zenodo';
-    $solr_doc['provider_logo_uri_s'] = 'https://about.zenodo.org/static/img/logos/zenodo-black-border.svg';
-    $solr_doc['provider_homepage_uri_s'] = "https://zenodo.org/communities/herbariamundi";
 
     return (object)$solr_doc;
 }

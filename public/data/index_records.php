@@ -8,11 +8,12 @@ if(php_sapi_name() !== 'cli'){
     exit;
 }
 
-$ops = getopt('i:r:');
+$ops = getopt('i:r:a:');
 
 if(count($ops) == 0){
     echo "\nUse -i to specify specimen by cetaf_id\n";
-    echo "Use -r to specify specimen by row id \n\n";
+    echo "Use -r to specify specimen by row id \n";
+    echo "Use -a ALL to work through all records in the db \n\n";
 }
 
 if(isset($ops['i'])){
@@ -21,6 +22,13 @@ if(isset($ops['i'])){
 
 if(isset($ops['r'])){
     index_record_by_row_id($ops['r']);
+}
+
+if(isset($ops['a'])){
+    $result = $mysqli->query("SELECT id FROM specimen limit 10");
+    while($row = $result->fetch_assoc()){
+        index_record_by_row_id($row['id']);
+    }
 }
 
 

@@ -104,6 +104,14 @@ class SpecimenCard extends Component {
     );
   }
 
+  getLogoPopover(name) {
+    return (
+      <Popover>
+        <Popover.Content style={{ fontSize: "80%" }}>{name}</Popover.Content>
+      </Popover>
+    );
+  }
+
   render() {
     const { specimen, associatedFolderId } = this.props;
 
@@ -128,7 +136,7 @@ class SpecimenCard extends Component {
         }
         style={{
           width: "200px", // fixed pixel width matched to the size the thumbnails are
-          height: "350px", // fixed height or the float left won't work
+          height: "365px", // fixed height or the float left won't work
           float: "left",
           margin: "0.2rem"
         }}
@@ -145,20 +153,43 @@ class SpecimenCard extends Component {
           />
         </OverlayTrigger>
 
-        <div style={{ textAlign: "right" }}>
-          <OverlayTrigger
-            trigger={["hover", "click"]}
-            placement="auto"
-            overlay={this.getCetafIdPopover(specimen.cetaf_id_preferred_s)}
-          >
-            <a
-              style={{ fontSize: "60%" }}
-              href={specimen.cetaf_id_preferred_s}
-              target="_new"
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: "5px"
+          }}
+        >
+          <div>
+            <OverlayTrigger
+              trigger={["hover", "click"]}
+              placement="auto"
+              overlay={this.getLogoPopover(specimen.provider_name_s)}
             >
-              CETAF ID 🔗
-            </a>
-          </OverlayTrigger>
+              <a href={specimen.provider_homepage_uri_s} target="_new">
+                <img
+                  src={specimen.provider_logo_path_s}
+                  style={{ maxHeight: "25px" }}
+                />
+              </a>
+            </OverlayTrigger>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <OverlayTrigger
+              trigger={["hover", "click"]}
+              placement="auto"
+              overlay={this.getCetafIdPopover(specimen.cetaf_id_preferred_s)}
+            >
+              <a
+                style={{ fontSize: "60%" }}
+                href={specimen.cetaf_id_preferred_s}
+                target="_new"
+              >
+                CETAF ID 🔗
+              </a>
+            </OverlayTrigger>
+          </div>
         </div>
       </div>
     );
