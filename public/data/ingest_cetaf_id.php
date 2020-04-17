@@ -42,13 +42,13 @@ if(php_sapi_name() === 'cli'){
             $file_ids = array_slice($file_ids, $offset, $ops['l']);
         }
 
-        // the n option means we only ingest if they are new to us
-        if(isset($ops['n'])) $new_only = true;
-        else $new_only = false;
-
         // combine any in file with any on command line
         $cetaf_ids= array_merge($file_ids, $cetaf_ids);
     }
+
+    // the n option means we only ingest if they are new to us
+    if(isset($ops['n'])) $new_only = true;
+    else $new_only = false;
 
 }else{
 
@@ -136,7 +136,7 @@ foreach($cetaf_ids as $cetaf_id){
 
     // xml is good so we can save it.
     // note we use all the versions of the id
-    $row_id = db_set_data_for_specimen($cetaf_id, $xml->asXML(), "rdf+xml");
+    $row_id = db_set_data_for_specimen($cetaf_id, $xml->asXML());
     if($row_id !== false){
         $out[$cetaf_id]['db_row_id'] = $row_id;
     }else{

@@ -1,4 +1,4 @@
-import ActionTypes from "../actions/ActionTypes";
+import ActionTypes from "../actions/actionTypes";
 import { FocusTargetTypes } from "../actions/setFocusAction";
 
 // building this structure before was start

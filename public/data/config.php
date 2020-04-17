@@ -23,10 +23,10 @@ define('ZENODO_SPECIMEN_CACHE', 'data/zenodo_cache/'); // dev
 //define('THUMBNAIL_CACHE', 'thumbnail_cache/'); // live
 define('THUMBNAIL_CACHE', 'thumbnail_cache/'); // dev
 
-// unfortunately the dev vs live proxying get so complicated that dynamically 
-// detecting the host and ip is not possible. Better to set it as config here
-//define('PROTOCOL_HOST_PORT', 'http://bravo.rbge.info'); // live
-define('PROTOCOL_HOST_PORT', 'http://localhost:3000'); // dev
+// these are defined once here but should never change
+// even in dev environment
+define('PROTOCOL_HOST_PORT_DATA', 'https://data.herbariamundi.org');
+define('PROTOCOL_HOST_PORT_WWW', 'https://www.herbariamundi.org');
 
 // note core name is defined here
 define('SOLR_QUERY_URI','http://localhost:8983/solr/mundi1');
@@ -75,7 +75,5 @@ if(php_sapi_name() !== 'cli'){
   $user_name = get_current_user();
 
 }
-
-
 
 ?>

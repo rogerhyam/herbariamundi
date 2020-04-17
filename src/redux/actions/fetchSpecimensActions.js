@@ -1,4 +1,4 @@
-import ActionTypes from "./ActionTypes";
+import ActionTypes from "./actionTypes";
 
 export function fetchSpecimens(searchParams) {
   return dispatch => {

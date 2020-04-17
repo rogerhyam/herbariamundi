@@ -61,14 +61,9 @@ function solr_index_specimen_by_id($row_id){
 
     $specimen_data = db_get_specimen_data_by_row_id($row_id);
 
-    switch ($specimen_data['raw_format']) {
-        case 'rdf+xml':
-            $solr_doc = parse_rdf_xml($specimen_data['raw'], $specimen_data['cetaf_id_normative']);
-            break;
-        case 'zenodo+json':
-            $solr_doc = parse_zenodo_json($specimen_data['raw'], $specimen_data['cetaf_id_normative']);
-            break;
-    }
+
+
+    $solr_doc = parse_rdf_xml($specimen_data['raw'], $specimen_data['cetaf_id_normative']);
 
     $solr_doc->db_id_i = $row_id; // just incase we need it
     $solr_doc->cetaf_id_preferred_s = $specimen_data['cetaf_id_preferred']; // the one we use for links
@@ -84,7 +79,7 @@ function solr_index_specimen_by_id($row_id){
 
     foreach ($herbaria_mundi_providers as $provider) {
         $regex = '/' . $provider['uri_pattern'] . '/';
-        echo $regex . " " . $solr_doc->id . "\n";
+        //echo $regex . " " . $solr_doc->id . "\n";
         if(preg_match($regex, $solr_doc->id)){
             $solr_doc->provider_name_s = $provider['name'];
             $solr_doc->provider_logo_path_s = $provider['logo_path'];
@@ -97,21 +92,38 @@ function solr_index_specimen_by_id($row_id){
     // so we base it on the row number and imagine 100 million sprecimens
     // zero pad the row number to 9 long 
     $path = preg_replace('/^([0-9]{3})([0-9]{3})([0-9]{3})/', '$1/$2/', str_pad($row_id, 9, '0', STR_PAD_LEFT));
-    $path .= $row_id . '.jpg';
-    $solr_doc->thumbnail_path_s = $path;
+    
+    $thumb_file_path = $path . $row_id . '.jpg';
+    $thumb_file_local_path = THUMBNAIL_CACHE . $thumb_file_path;
+    $thumb_dir_local_path = THUMBNAIL_CACHE . $path;
+
+    $solr_doc->thumbnail_path_s = $thumb_file_path;
 
     // nothing should be in the index unless it has a thumbnail so even if this 
     // is slow it is necessary and counts as part of indexing process!
     $thumbnail_remote_uri = get_thumbnail_uri_from_manifest($solr_doc->iiif_manifest_uri_ss[0], 400);
     $solr_doc->thumbnail_remote_uri_s = $thumbnail_remote_uri;
 
-    $thumb_local_path = THUMBNAIL_CACHE . $path;
     // does the thumbnail alread exist?
-    if(!file_exists($thumb_local_path)){
+    if(!file_exists($thumb_file_local_path)){
+
         // create the dir if needed
-        @mkdir(substr($thumb_local_path,0, -6), 0777, true);
-        file_put_contents($thumb_local_path, fopen($thumbnail_remote_uri, 'r'));
+        @mkdir($thumb_dir_local_path, 0777, true);
+
+        // if we are in dev then the remote URI might be local
+        if(getenv('HERBARIA_MUNDI_DEV')){
+            $thumbnail_remote_uri = str_replace(
+                'https://www.herbariamundi.org',
+                'http://localhost:3100/data',
+                $thumbnail_remote_uri
+            );
+        }
+
+        file_put_contents($thumb_file_local_path, fopen($thumbnail_remote_uri, 'r'));
     }
+
+    // finally timestamp it 
+    $solr_doc->last_indexed_dt = 'NOW';
 
     $out['solr_doc'] = $solr_doc;
     $out['solr_add_response'] = solr_add_docs(array($solr_doc));
@@ -121,136 +133,16 @@ function solr_index_specimen_by_id($row_id){
 
 }
 
-function parse_zenodo_json($json, $cetaf_id_normative){
-
-    $solr_doc = array();
-    $zenodo_doc = json_decode($json);
-
-    // the id of the document is the cetaf_id with associated fields.
-    $solr_doc['id'] = $cetaf_id_normative;
-
-    // Only ever have https for hm cetaf_ids
-    $solr_doc['cetaf_id_ss'] = array('https:' . $cetaf_id_normative);
-
-    // we build a string of all text to check for taxon names
-
-    // a title
-    $title = $zenodo_doc->metadata->title;
-    $solr_doc['title_s'] = $title;
-
-    // do the big text areas first.
-    $description = strip_tags($zenodo_doc->metadata->description);
-    $solr_doc['description_s'] = $description;
-
-    // raw txt
-    $solr_doc['raw_txt'][] = preg_replace('/\s+/', ' ', $title . ' ' . $description);
-
-    // FIXME: add key words in here
-    
-    // Family
-    $solr_doc['family_ss'][] = get_families($title . ' ' . $description);
-
-    // genus
-    $solr_doc['genus_ss'][] = db_get_genera($title);
-
-
-    // we use the subject mapping table to add values to the index
-    foreach($zenodo_doc->metadata->subjects as $subject){
-
-        // fix issue that the wikidata url is often used instead of the concept uri
-        // https://www.wikidata.org/wiki/Q739
-        // https://www.wikidata.org/entity/Q739
-        $uri = preg_replace('/^http[s]{0,1}:\/\/www.wikidata.org\/wiki\/(Q[0-9]+)$/', 'https://www.wikidata.org/entity/$1', $subject->identifier);
-
-        // add it as a subject anyhow
-        $solr_doc['zenodo_subject_ss'][] = $uri;
-        
-        // each mention in the table
-        $mappings = db_get_zenodo_mappings($uri);
-        foreach($mappings as $map){
-            $solr_doc[$map->field][] = $map->value;
-        }
-
-    }
-
-    foreach($zenodo_doc->metadata->creators as $creator){
-        $solr_doc['collector_ss'][] = $creator->name;
-    }
-
-    // pull the year out of the date string
-    $matches = array();
-    if(preg_match('/([0-9]{4})/', $zenodo_doc->metadata->publication_date, $matches)){
-        $solr_doc['collection_year_i'][] = $matches[1];
-    }
-
-    // most importantly the manifest
-    // IIIF Manifest URI 
-    // https://data.herbariamundi.org/iiif/p/3588258/manifest
-    $solr_doc['iiif_manifest_uri_ss'][] = 'https://data.herbariamundi.org/iiif/p/' . $zenodo_doc->conceptrecid . '/manifest';
-
-    // lat/lon - extract or use
-    /*
-        Also use regex to find lat/lon
-        ^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$
-        groups 1 and 4 contain latitude and longitude respectively
-    */
-
-    return (object)$solr_doc;
-}
-
-
-function get_families($text){
-
-    $families = array();
-    $words = str_word_count($text, 1);
-    
-    foreach($words as $word){
-
-        if(preg_match('/^[A-Z][a-z]+aceae$/', $word)){
-            $families[] = $word;
-            continue;
-        }
-
-        // 8 families seen as exceptions
-        switch ($word) {
-            case 'Umbelliferae': 
-                $families[] = 'Apiaceae';
-                break;
-            case 'Palmae':
-                $families[] = 'Arecaceae';
-                break;
-            case 'Compositae':
-                $families[] = 'Asteraceae';
-                break;
-            case 'Cruciferae':
-                $families[] = 'Brassicaceae';
-                break;
-            case 'Guttiferae':
-                $families[] = 'Clusiaceae';
-                break;
-            case 'Leguminosae':
-                $families[] = 'Fabaceae';
-                break;
-            case 'Labiatae':
-                $families[] = 'Lamiaceae';
-                break;
-            case 'Gramineae':
-                $families[] = 'Poaceae';
-                break;
-        }
- 
-
-    }
-
-    return array_unique($families);
-
-}
-
 function parse_rdf_xml($xml, $cetaf_id_normative){
 
+    // this is slow!
+
     // convert the RDF into name/value pairs in JSON for building the SOLR document.
-    // FIXME: hard coded in dev. I need to work out how to switch this between dev and live
-    $rdf2json_api_uri = "http://127.0.0.1:3100/data/rdf2json.php";
+    if(getenv('HERBARIA_MUNDI_DEV')){
+        $rdf2json_api_uri = "http://127.0.0.1:3100/data/rdf2json.php";
+    }else{
+        $rdf2json_api_uri = "https://www.herbariamundi.org/rdf2json.php";
+    }
 
     $post_params=[
         'rdf_xml'=>$xml,
@@ -263,8 +155,6 @@ function parse_rdf_xml($xml, $cetaf_id_normative){
     curl_setopt($ch, CURLOPT_POSTFIELDS, $post_params);
     $response = run_curl_request($ch);
 
-    print_r($response);
-
     $parsed_rdf = json_decode($response->body);
 
     // we have the fields to add a solr document now. Let's do it!
@@ -274,6 +164,11 @@ function parse_rdf_xml($xml, $cetaf_id_normative){
 }
 
 function get_thumbnail_uri_from_manifest($manifest_uri, $size){
+    
+    // if we are in dev we use a different URI for the manifest
+    if(getenv('HERBARIA_MUNDI_DEV')){
+        $manifest_uri = str_replace('https://data.herbariamundi.org','http://localhost:3100/data', $manifest_uri);
+    }
 
     $json = file_get_contents($manifest_uri);
     $manifest = json_decode($json);

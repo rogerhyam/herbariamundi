@@ -30,7 +30,7 @@ function db_get_specimen_data_by_row_id($row_id){
  * 
  */
 
-function db_set_data_for_specimen($cetaf_id, $raw, $raw_format){
+function db_set_data_for_specimen($cetaf_id, $raw){
 
     global $mysqli;
     $cetaf_id_preferred = $cetaf_id;
@@ -38,6 +38,7 @@ function db_set_data_for_specimen($cetaf_id, $raw, $raw_format){
 
     // look to see if any of the ids are in the database
     $sql = "SELECT * FROM specimen WHERE cetaf_id_normative = '$cetaf_id_normative'";
+    
     $response = $mysqli->query($sql);
 
     // if we can't find any then we will add them
@@ -51,15 +52,15 @@ function db_set_data_for_specimen($cetaf_id, $raw, $raw_format){
 
     if($specimen_id){
         // we have a specimen_id so we are updating a row
-        $stmt = $mysqli->prepare("UPDATE specimen SET `raw` = ?, `raw_format` = ?, `cetaf_id_normative` = ?, `cetaf_id_preferred` = ? WHERE id = ?");
-        $stmt->bind_param('ssssi', $raw, $raw_format, $cetaf_id_normative, $cetaf_id_preferred, $specimen_id);
+        $stmt = $mysqli->prepare("UPDATE specimen SET `raw` = ?, `cetaf_id_normative` = ?, `cetaf_id_preferred` = ? WHERE id = ?");
+        $stmt->bind_param('sssi', $raw, $cetaf_id_normative, $cetaf_id_preferred, $specimen_id);
         $stmt->execute();
 
     }else{
         
         // we don't have a specimen_id so we are creating
-        $stmt = $mysqli->prepare("INSERT INTO specimen (`raw`, `raw_format`, `cetaf_id_normative`, `cetaf_id_preferred`) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param('ssss', $raw, $raw_format, $cetaf_id_normative, $cetaf_id_preferred);
+        $stmt = $mysqli->prepare("INSERT INTO specimen (`raw`, `cetaf_id_normative`, `cetaf_id_preferred`) VALUES (?, ?, ?)");
+        $stmt->bind_param('sss', $raw, $cetaf_id_normative, $cetaf_id_preferred);
         $stmt->execute();
         $specimen_id = $mysqli->insert_id;
 
@@ -97,26 +98,5 @@ function db_get_genera($text){
 
 }
 
-function db_get_zenodo_mappings($uri){
-
-    global $mysqli;
-
-    $out = array();
-
-    $stmt = $mysqli->prepare("SELECT `solr_field`, `value` FROM zenodo_subject_mapping WHERE uri = ?");
-    $stmt->bind_param('s', $uri);
-    $stmt->execute();
-    $stmt->bind_result($field, $value);
-    while($stmt->fetch()){
-        $out[] = (object)array(
-            'field' => $field,
-            'value' => $value
-        );
-    }
-    $stmt->close();
-
-    return $out;
-
-}
 
 ?>

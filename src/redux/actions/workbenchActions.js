@@ -1,4 +1,4 @@
-import ActionTypes from "./ActionTypes";
+import ActionTypes from "./actionTypes";
 
 // action creator returns
 export function addSpecimen(specimenId) {

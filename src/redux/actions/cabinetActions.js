@@ -1,4 +1,4 @@
-import ActionTypes from "./ActionTypes";
+import ActionTypes from "./actionTypes";
 
 export const newCabinet = () => ({
   type: ActionTypes.NEW_CABINET

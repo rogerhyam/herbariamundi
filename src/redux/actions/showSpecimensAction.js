@@ -1,4 +1,4 @@
-import ActionTypes from "./ActionTypes";
+import ActionTypes from "./actionTypes";
 
 export const showSpecimens = (
   specimenIds = [],
