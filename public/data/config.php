@@ -45,11 +45,18 @@ if (!$mysqli->set_charset("utf8")) {
 // create an anonymous use if there isn't already one.
 if(php_sapi_name() !== 'cli'){
 
-  if(!isset($_SESSION['user_id']) ){
-
+  // check we have a user_id in the session that is  in the db
+  $valid_session = false;
+  if(isset($_SESSION['user_id'])){
+     $result = $mysqli->query("SELECT * FROM user where id = " . $_SESSION['user_id'] );
+     if($result->num_rows){
+        $valid_session = true;
+     }
+  }
+  // no valid session so create one
+  if(!$valid_session){
     $access_token = session_id();
-    $result = $mysqli->query("SELECT * FROM User where orcid is null and access_token='$access_token'");
-  
+    $result = $mysqli->query("SELECT * FROM user where orcid is null and access_token='$access_token'");
     if($result->num_rows){
       $row = $result->fetch_assoc();
       $_SESSION['user_id'] = $row['id'];  
@@ -60,14 +67,11 @@ if(php_sapi_name() !== 'cli'){
       $_SESSION['user_id'] = $mysqli->insert_id;
       $_SESSION['user_name'] = $name;
     }
-  
   }
   
   // so we have them handy
-  
   $user_id = $_SESSION['user_id'];
   $user_name = $_SESSION['user_name'];
-
 
 }else{
 

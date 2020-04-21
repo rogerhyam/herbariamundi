@@ -43,9 +43,11 @@ $out['total_rdf_trips_parsed'] = $parser->parse($rdf, $xml_rdf_string, 'rdfxml',
 // about.
 $most_props = 0;
 $cetaf_id = null;
-foreach($cetaf_ids as $id){ 
+foreach($cetaf_ids as $id){
+    $out['prop_count'] = array();
     $resource = $rdf->resource($id);
     $props = $resource->properties();
+    $out['prop_count'][$id] = count($props);
     if(count($props) > $most_props){
         $cetaf_id = $id;
         $most_props = count($props);

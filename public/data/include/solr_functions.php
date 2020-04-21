@@ -160,6 +160,9 @@ function parse_rdf_xml($xml, $cetaf_id_normative){
     // we have the fields to add a solr document now. Let's do it!
     $solr_doc = $parsed_rdf->solr_fields;
 
+    print_r($parsed_rdf);
+    exit;
+
     return $solr_doc;
 }
 
