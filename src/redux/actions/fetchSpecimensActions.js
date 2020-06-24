@@ -18,7 +18,7 @@ export function fetchSpecimens(searchParams) {
       .then(json => {
         let fullResponse = JSON.parse(json);
         // FIXME: throw error if we get error from SOLR
-        dispatch(fetchSpecimensSuccess(fullResponse.response));
+        dispatch(fetchSpecimensSuccess(fullResponse));
         return json;
       })
       .catch(error => dispatch(fetchSpecimensFailure(error)));
@@ -30,9 +30,9 @@ export const fetchSpecimensBegin = searchParams => ({
   searchParams
 });
 
-export const fetchSpecimensSuccess = response => ({
+export const fetchSpecimensSuccess = fullResponse => ({
   type: ActionTypes.FETCH_SPECIMENS_SUCCESS,
-  response
+  fullResponse
 });
 
 export const fetchSpecimensFailure = error => ({

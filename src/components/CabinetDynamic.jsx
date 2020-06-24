@@ -63,7 +63,6 @@ class CabinetDynamic extends CabinetOpenable {
         style={{
           ...this.state.style,
           paddingTop: "0.5rem",
-          borderTop: "gray 1px dashed",
           paddingBottom: "1em"
         }}
         draggable={true}

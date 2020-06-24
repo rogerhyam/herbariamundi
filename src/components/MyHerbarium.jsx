@@ -4,7 +4,8 @@ import FolderSearch from "./FolderSearch";
 import FolderWaste from "./FolderWaste";
 import FolderWorkbench from "./FolderWorkbench";
 import FolderEdit from "./FolderEdit";
-import CabinetTools from "./CabinetTools";
+import CabinetMundi from "./CabinetMundi";
+import CabinetSavedSearches from "./CabinetSavedSearches";
 import { connect } from "react-redux";
 import { fetchMyHerbarium } from "../redux/actions/fetchMyHerbariumActions";
 import CabinetNew from "./CabinetNew";
@@ -25,16 +26,24 @@ class MyHerbarium extends Component {
     this.props.fetchMyHerbarium();
   }
 
-  render() {
-    return (
-      <Fragment>
-        <ul style={this.cabinetListStyle}>
-          <CabinetTools title="Tools" key="tools">
+  /*
+            <CabinetTools title="Tools" key="tools">
             <FolderSearch />
             <FolderWorkbench />
             <FolderEdit />
             <FolderWaste />
           </CabinetTools>
+
+  */
+
+  render() {
+    return (
+      <Fragment>
+        <ul style={this.cabinetListStyle}>
+          <CabinetMundi title="All Specimens" key="allSpecimens" />
+          <CabinetSavedSearches title="Saved Searches" key="savedSearches" />
+
+
           {this.getDynamicCabinets()}
           <CabinetNew key="newcab" />
         </ul>

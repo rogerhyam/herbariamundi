@@ -30,12 +30,12 @@ class SpecimenBrowser extends Component {
 
     if (specimens.length == 0) {
       return (
-        <Fragment>No specimens to show. Try Discover or a folder.</Fragment>
+        <Fragment>No specimens to show.</Fragment>
       );
     }
 
     return (
-      <Container fluid={true}>
+      <Container fluid={true} style={{ padding: "0" }}>
         {specimens.map(sp => (
           <SpecimenCard
             specimen={sp}

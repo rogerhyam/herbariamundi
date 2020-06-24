@@ -23,6 +23,23 @@ const initialState = {
     active: false,
     loading: false,
     error: null,
+    current: {
+      text: null,
+      facets: {
+        family_ss: null,
+        genus_ss: null,
+        specific_epithet_ss: null,
+        country_code_ss: null,
+        year_i: null
+      }
+    },
+    facetTerms: {
+      family_ss: null,
+      genus_ss: null,
+      species_ss: null,
+      country_code_ss: null,
+      year_i: null
+    },
     history: []
   },
   folders: {
@@ -47,6 +64,52 @@ const initialState = {
 
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
+
+    case ActionTypes.SEARCH_FACET_CHANGE:
+      let oldSearch = state.search.current;
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          current: {
+            ...state.search.current,
+            facets: {
+              ...state.search.current.facets,
+              [action.facetName]: action.facetValue
+            }
+          },
+          history: [oldSearch, ...state.search.history]
+        }
+      };
+
+    case ActionTypes.SEARCH_TEXT_CHANGE:
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          current: {
+            ...state.search.current,
+            text: action.newText
+          },
+          history: [state.search.current, ...state.search.history]
+        }
+      };
+
+    case ActionTypes.SEARCH_RESET:
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          current: {
+            ...initialState.search.current
+          },
+          facetTerms: {
+            ...initialState.search.facetTerms
+          },
+          history: [state.search.current, ...state.search.history]
+        }
+      };
+
     case ActionTypes.FETCH_SPECIMENS_BEGIN:
       return {
         ...state,
@@ -61,9 +124,10 @@ const rootReducer = (state = initialState, action) => {
       };
     case ActionTypes.FETCH_SPECIMENS_SUCCESS:
       // convert specimens returned into a list by id
+      console.log(action.fullResponse.facets);
       let searchResultList = [];
       let newSpecimenList = { ...state.specimens.byId };
-      action.response.docs.forEach(doc => {
+      action.fullResponse.response.docs.forEach(doc => {
         searchResultList.push(doc.id);
         newSpecimenList[doc.id] = doc;
       });
@@ -81,7 +145,7 @@ const rootReducer = (state = initialState, action) => {
         },
         search: {
           ...state.search,
-          history: [action.response, ...state.search.history]
+          facetTerms: { ...action.fullResponse.facets }
         }
       };
     case ActionTypes.FETCH_SPECIMENS_FAILURE:

@@ -29,6 +29,7 @@ class HerbariaMundi extends Component {
   render() {
     return (
       <Provider store={store}>
+        { /*
         <Navbar bg="dark" variant="dark" expand="lg">
           <Navbar.Brand href="#home">Herbaria Mundi</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -48,8 +49,9 @@ class HerbariaMundi extends Component {
             </Form>
           </Navbar.Collapse>
         </Navbar>
+              */}
         <Tabs defaultActiveKey="specimens" id="mainTabs">
-          <Tab eventKey="specimens" title="Specimens">
+          <Tab eventKey="specimens" title="Herbaria Mundi">
             <Container fluid={true} style={{ padding: 0 }}>
               <Row noGutters={true}>
                 <Col md={2}>
@@ -163,6 +165,13 @@ class HerbariaMundi extends Component {
                   <a href="https://twitter.com/NewtonFund">@NewtonFund</a>
                 </p>
               </div>
+            </Container>
+          </Tab>
+          <Tab eventKey="account" title="Your Account">
+            <Container style={{ paddingTop: "2em" }}>
+              <p>Access to Herbaria Mundi is only available researchers who have an ORCID.</p>
+              <p>Please log in using your ORCID.</p>
+              <p>This is so we can track usage of specimens and report back to herbaria.</p>
             </Container>
           </Tab>
         </Tabs>
