@@ -15,6 +15,7 @@ import Tab from "react-bootstrap/Tab";
 import MyHerbarium from "./MyHerbarium";
 import Workbench from "./Workbench";
 import SearchForm from "./SearchForm";
+import SearchFormPager from "./SearchFormPager";
 import CabinetEditForm from "./CabinetEditForm";
 import FolderEditForm from "./FolderEditForm";
 
@@ -59,10 +60,25 @@ class HerbariaMundi extends Component {
                   <MyHerbarium />
                 </Col>
                 <Col style={{ padding: "1em" }}>
-                  <CabinetEditForm />
-                  <FolderEditForm />
-                  <SearchForm />
-                  <SpecimenBrowser />
+                  <Container fluid={false}>
+                    <Row>
+                      <Col>
+                        <CabinetEditForm />
+                        <FolderEditForm />
+                        <SearchForm />
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col>
+                        <SpecimenBrowser />
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col style={{ textAlign: "center" }}>
+                        <SearchFormPager />
+                      </Col>
+                    </Row>
+                  </Container>
                 </Col>
               </Row>
             </Container>

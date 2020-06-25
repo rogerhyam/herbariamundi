@@ -23,8 +23,12 @@ const initialState = {
     active: false,
     loading: false,
     error: null,
+    total: 0,
+    pageSize: 50,
+    lastSearchParams: null,
     current: {
       text: null,
+      offset: 0,
       facets: {
         family_ss: null,
         genus_ss: null,
@@ -95,6 +99,19 @@ const rootReducer = (state = initialState, action) => {
         }
       };
 
+    case ActionTypes.SEARCH_OFFSET_CHANGE:
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          current: {
+            ...state.search.current,
+            offset: action.newOffset
+          },
+          history: [state.search.current, ...state.search.history]
+        }
+      };
+
     case ActionTypes.SEARCH_RESET:
       return {
         ...state,
@@ -120,11 +137,15 @@ const rootReducer = (state = initialState, action) => {
             loading: true,
             error: null
           }
+        },
+        search: {
+          ...state.search,
+          lastSearchParams: { ...action.searchParams }
         }
       };
     case ActionTypes.FETCH_SPECIMENS_SUCCESS:
       // convert specimens returned into a list by id
-      console.log(action.fullResponse.facets);
+      console.log(action.fullResponse);
       let searchResultList = [];
       let newSpecimenList = { ...state.specimens.byId };
       action.fullResponse.response.docs.forEach(doc => {
@@ -145,6 +166,7 @@ const rootReducer = (state = initialState, action) => {
         },
         search: {
           ...state.search,
+          total: action.fullResponse.response.numFound,
           facetTerms: { ...action.fullResponse.facets }
         }
       };

@@ -38,7 +38,7 @@ class SearchFormFacet extends Component {
 
         // add the default/root choice
         let firstChild = this.props.children[0];
-        out.push(<option value={firstChild.key} >{firstChild.display}</option>);
+        out.push(<option value={firstChild.key} >{firstChild.props.display}</option>);
 
         // If they have selected a letter add that and select it
         if (facetValue && facetValue.length == 1) {

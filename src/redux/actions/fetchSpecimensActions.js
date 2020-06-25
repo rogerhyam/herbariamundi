@@ -2,7 +2,7 @@ import ActionTypes from "./actionTypes";
 
 export function fetchSpecimens(searchParams) {
   return dispatch => {
-    dispatch(fetchSpecimensBegin());
+    dispatch(fetchSpecimensBegin(searchParams));
 
     const requestOptions = {
       method: "POST",

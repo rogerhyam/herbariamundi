@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect, shallowEqual } from "react-redux";
 import Form from "react-bootstrap/Form";
 import SearchFormFacet from "./SearchFormFacet";
+import SearchFormMessage from "./SearchFormMessage";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import ButtonToolbar from "react-bootstrap/ButtonToolbar";
@@ -9,11 +10,12 @@ import Col from "react-bootstrap/Col";
 import { fetchSpecimens } from "../redux/actions/fetchSpecimensActions";
 import { searchTextChange } from '../redux/actions/searchTextChange';
 import { searchReset } from '../redux/actions/searchReset';
+import { searchOffsetChange } from '../redux/actions/searchOffsetChange';
 
 class SearchForm extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = { searchTriggered: false };
   }
 
   handleTextChange = e => {
@@ -22,7 +24,13 @@ class SearchForm extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    this.runSearch();
+
+    // run the search and know that we are requesting it
+    this.setState({ searchTriggered: true }, () => {
+      this.props.searchOffsetChange(0);
+      this.runSearch();
+    });
+
   };
 
   handleReset = e => {
@@ -44,12 +52,19 @@ class SearchForm extends Component {
     // We need to trigger a search if a facet changes
     // but not if the text changes 
     if (!shallowEqual(this.props.facets, prevProps.facets)) {
-      console.log('FACETS CHANGED');
-      this.runSearch();
+      this.setState({ searchTriggered: true }, () => {
+        this.props.searchOffsetChange(0);
+        this.runSearch();
+      });
     }
 
     // if we have just become active then run the search
     if (this.props.active && !prevProps.active) {
+      this.runSearch();
+    }
+
+    // if the offset changes and we didn't change it we run the search again
+    if (this.props.offset != prevProps.offset && !this.state.searchTriggered) {
       this.runSearch();
     }
 
@@ -66,8 +81,9 @@ class SearchForm extends Component {
     // add the text to the query
     query.query = this.state.searchText ? this.state.searchText : '*:*';
 
-    // restrict to 30 rows for now
-    query.limit = 30
+    // restrict to XX 
+    query.limit = this.props.pageSize;
+    query.offset = this.props.offset;
 
     // work through the facets we have.
     query.facet = {};
@@ -141,12 +157,16 @@ class SearchForm extends Component {
 
       console.log('RANDOM');
       query.sort = "random_" + Math.random() + " asc";
-      this.setState({ messageText: "No search defined so displaying a random sample of specimens" });
+      let message = "No search defined so displaying a random sample of " + this.props.pageSize + " specimens"
+      this.setState({ messageText: message });
 
     }
 
     console.log(query);
     this.props.fetchSpecimens(query);
+
+    // flag the fact that we no longer have a query triggered by us (incase it was)
+    this.setState({ searchTriggered: false });
 
   }
 
@@ -523,9 +543,6 @@ class SearchForm extends Component {
                 onChange={this.handleTextChange}
                 value={this.state.searchText}
               />
-              <Form.Text className="text-muted">
-                {this.state.messageText}
-              </Form.Text>
             </Form.Group>
           </Col>
           <Col>
@@ -546,7 +563,11 @@ class SearchForm extends Component {
             </ButtonToolbar>
           </Col>
         </Form.Row>
+        <Form.Row>
+          <SearchFormMessage />
+        </Form.Row>
       </Form >
+
     );
   }
 }
@@ -555,7 +576,10 @@ const mapStateToProps = state => {
   const { search } = state;
   return {
     active: search.active,
-    facets: search.current.facets
+    facets: search.current.facets,
+    totalResults: search.total,
+    pageSize: search.pageSize,
+    offset: search.current.offset
   };
 };
-export default connect(mapStateToProps, { fetchSpecimens, searchTextChange, searchReset })(SearchForm);
+export default connect(mapStateToProps, { fetchSpecimens, searchTextChange, searchReset, searchOffsetChange })(SearchForm);
