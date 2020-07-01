@@ -61,8 +61,6 @@ function solr_index_specimen_by_id($row_id){
 
     $specimen_data = db_get_specimen_data_by_row_id($row_id);
 
-
-
     $solr_doc = parse_rdf_xml($specimen_data['raw'], $specimen_data['cetaf_id_normative']);
 
     $solr_doc->db_id_i = $row_id; // just incase we need it
@@ -108,7 +106,13 @@ function solr_index_specimen_by_id($row_id){
     if(!file_exists($thumb_file_local_path)){
 
         // create the dir if needed
-        @mkdir($thumb_dir_local_path, 0777, true);
+        set_error_handler(function($errno, $errstr, $errfile, $errline) { 
+            echo "Problem creating thumbnail\n";
+            echo "$errstr\n$errfile line: $errline";
+            exit;
+        });
+        mkdir($thumb_dir_local_path, 0777, true);
+        restore_error_handler();
 
         // if we are in dev then the remote URI might be local
         if(getenv('HERBARIA_MUNDI_DEV')){
@@ -160,9 +164,6 @@ function parse_rdf_xml($xml, $cetaf_id_normative){
     // we have the fields to add a solr document now. Let's do it!
     $solr_doc = $parsed_rdf->solr_fields;
 
-    print_r($parsed_rdf);
-    exit;
-
     return $solr_doc;
 }
 
@@ -196,7 +197,6 @@ function get_thumbnail_uri_from_manifest($manifest_uri, $size){
         default:
             return null;
     }
-
     return $image_uri . '/full/,' .  $size . '/0/default.jpg';
 
 }

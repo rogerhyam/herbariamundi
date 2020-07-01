@@ -17,7 +17,8 @@ const initialState = {
       associatedFolderId: null,
       description: null,
       specimenIds: []
-    }
+    },
+    modalSpecimen: false
   },
   search: {
     active: false,
@@ -206,6 +207,10 @@ const rootReducer = (state = initialState, action) => {
     case ActionTypes.SHOW_SPECIMENS:
       state.specimens.browser = { ...state.specimens.browser, ...action };
       delete state.specimens.browser.type;
+      return { ...state };
+
+    case ActionTypes.SHOW_SPECIMEN_MODAL:
+      state.specimens.modalSpecimen = action.modalSpecimen;
       return { ...state };
 
     // MY HERBARIUM

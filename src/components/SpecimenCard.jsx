@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import Card from "react-bootstrap/Card";
-import Image from "react-bootstrap/Image";
+import { connect } from "react-redux";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import DraggableTypes from "./DraggableTypes";
+import { showSpecimenModal } from "../redux/actions/showSpecimenModal"
 
 class SpecimenCard extends Component {
   constructor(props) {
@@ -19,6 +19,30 @@ class SpecimenCard extends Component {
     e.dataTransfer.setData("type", DraggableTypes.SPECIMEN);
     e.dataTransfer.setDragImage(e.target, 10, 10);
   };
+
+  handleShowModalDialogue = (e) => {
+    let x = e.nativeEvent.offsetX;
+    let y = e.nativeEvent.offsetY;
+    let h = e.nativeEvent.target.height;
+    let w = e.nativeEvent.target.width;
+    let aspect = h / w;
+
+    // openseadragon the coordinate system is 
+    // x goes 0 to 1
+    // y goes 0 to aspect ratio
+
+    let osdX = x / w;
+    let osdY = (y / h) * aspect;
+
+    console.log(`osd_x: ${osdX} osd_y: ${osdY}`);
+    this.props.showSpecimenModal(
+      {
+        id: this.props.specimen.id,
+        x: osdX,
+        y: osdY
+      }
+    );
+  }
 
   getSpecimenPopover() {
     const { specimen, associatedFolderId } = this.props;
@@ -57,8 +81,6 @@ class SpecimenCard extends Component {
         label: "Country"
       }
     ];
-
-    specimen.test_ss = ["banana", "apple"];
 
     return (
       <Popover id="popover-basic">
@@ -142,7 +164,7 @@ class SpecimenCard extends Component {
         }}
       >
         <OverlayTrigger
-          trigger={["hover", "click"]}
+          trigger={["hover", "focus"]}
           placement="auto"
           overlay={this.getSpecimenPopover()}
         >
@@ -150,6 +172,7 @@ class SpecimenCard extends Component {
             style={{ width: "200px" }}
             src={thumbnailUri}
             draggable={false}
+            onClick={this.handleShowModalDialogue}
           />
         </OverlayTrigger>
 
@@ -191,9 +214,12 @@ class SpecimenCard extends Component {
             </OverlayTrigger>
           </div>
         </div>
-      </div>
+      </div >
     );
   }
 }
 
-export default SpecimenCard;
+const mapStateToProps = state => {
+  return {};
+};
+export default connect(mapStateToProps, { showSpecimenModal })(SpecimenCard);

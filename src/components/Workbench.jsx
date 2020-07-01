@@ -72,8 +72,8 @@ class Workbench extends Component {
   setMiradorHeight = () => {
     const wrap = document.getElementById("miradorWrapper");
     let bannerHeight = wrap.getBoundingClientRect().y;
-    // FIXME banner height is 0 when first called so we default to 100 could be better
-    if (bannerHeight === 0) bannerHeight = 100;
+    // FIXME banner height is 0 when first called so we default to 55 could be better
+    if (bannerHeight === 0) bannerHeight = 55;
     wrap.style.height = window.innerHeight - bannerHeight + "px";
   };
 

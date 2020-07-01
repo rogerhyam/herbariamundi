@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { fetchSpecimens } from "../redux/actions/fetchSpecimensActions";
 import Container from "react-bootstrap/Container";
 import SpecimenCard from "./SpecimenCard";
+import SpecimenCardModal from "./SpecimenCardModal";
 
 class SpecimenBrowser extends Component {
   constructor(props) {
@@ -35,16 +36,19 @@ class SpecimenBrowser extends Component {
     }
 
     return (
-      <Container fluid={true} style={{ padding: "0" }}>
-        {specimens.map(sp => (
-          <SpecimenCard
-            specimen={sp}
-            key={sp.id}
-            mini={false}
-            associatedFolderId={associatedFolderId}
-          />
-        ))}
-      </Container>
+      <>
+        <Container fluid={true} style={{ padding: "0" }}>
+          {specimens.map(sp => (
+            <SpecimenCard
+              specimen={sp}
+              key={sp.id}
+              mini={false}
+              associatedFolderId={associatedFolderId}
+            />
+          ))}
+        </Container>
+        <SpecimenCardModal />
+      </>
     );
   }
 }
