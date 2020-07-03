@@ -142,8 +142,6 @@ class SpecimenCardModal extends Component {
     }
 
     getFolderSelect() {
-
-        console.log(this.props.cabinets.cabinetIds);
         return (
             <Form.Control as="select" onChange={this.selectCabinet} value={this.state.pickedFolderId}>
                 <option value="NO_PICKED_FOLDER" >Folders...</option>

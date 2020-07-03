@@ -5,11 +5,14 @@ import { connect } from "react-redux";
 import { setFocus, FocusTargetTypes } from "../redux/actions/setFocusAction";
 import FolderSpecimens from "./FolderSpecimens";
 import FolderNew from "./FolderNew";
+import CabinetDynamicContextMenu from "./CabinetDynamicContextMenu";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 class CabinetDynamic extends CabinetOpenable {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = { contextMenuVisible: false };
   }
 
   handleDragEnter = e => {
@@ -49,6 +52,7 @@ class CabinetDynamic extends CabinetOpenable {
     }
   };
 
+
   handleDragStart = e => {
     console.log("cabinet drag start");
     e.dataTransfer.effectAllowed = "move";
@@ -72,19 +76,39 @@ class CabinetDynamic extends CabinetOpenable {
         onDragOver={e => this.handleDragOver(e)}
         onDragStart={e => this.handleDragStart(e)}
       >
-        <button
-          type="button"
-          style={this.buttonStyle}
-          onClick={this.handleClicked}
+        <OverlayTrigger
+          placement="right"
+          delay={{ show: 250, hide: 400 }}
+          overlay={props => {
+            return (<Tooltip id="button-tooltip" {...props}>
+              Right-click for options
+            </Tooltip>)
+          }}
         >
-          <span role="img" aria-label="Search">
-            🗄️
+          <button
+            id={this.props.id}
+            type="button"
+            style={this.buttonStyle}
+            onClick={this.handleClicked}
+          >
+            <span role="img" aria-label="Search">
+              🗄️
           </span>{" "}
-          {this.props.title}
-          {this.getArrow()}
-        </button>
+            {this.props.title}
+            {this.getArrow()}
+          </button>
+        </OverlayTrigger>
+        <CabinetDynamicContextMenu
+          cabinetId={this.props.id}
+          cabinetTitle={this.props.title}
+          folderCount={this.props.folders.length}
+          isFirst={this.props.isFirst}
+          isLast={this.props.isLast}
+        />
         {this.getFolderList()}
+
       </li>
+
     );
   }
   handleClicked = e => {

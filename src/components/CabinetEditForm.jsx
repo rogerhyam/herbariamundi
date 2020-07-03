@@ -27,18 +27,28 @@ class CabinetEditForm extends CabinetFolderEditForm {
     this.setState({ description: "", title: "" });
   };
 
+  handleEntered = (dialogue) => {
+    if (this.props.cabinetId === "_NEW_") {
+      this.setState({ title: "New Cabinet", description: "" });
+    } else {
+      this.setState({ title: this.props.cabinet.title, description: this.props.cabinet.description });
+    }
+  }
+
   render() {
-    let title = "Edit Cabinet";
-    if (this.props.cabinetId === "_NEW_") title = "New Cabinet";
+
+    let formTitle = "Edit cabinet";
+    if (this.props.cabinetId === "_NEW_") formTitle = "New cabinet";
 
     return (
       <Form>
         <Modal
+          onEntered={this.handleEntered}
           show={this.props.cabinetId ? true : false}
           onHide={this.props.editCabinetCancel}
         >
           <Modal.Header closeButton>
-            <Modal.Title>{title}</Modal.Title>
+            <Modal.Title>{formTitle}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form.Group controlId="formTitle">
@@ -47,6 +57,7 @@ class CabinetEditForm extends CabinetFolderEditForm {
                 type="text"
                 placeholder="Title"
                 onChange={this.handleTitleChange}
+                value={this.state.title}
               />
               <Form.Control.Feedback type="invalid">
                 You must supply a title.
@@ -60,6 +71,7 @@ class CabinetEditForm extends CabinetFolderEditForm {
                 rows="3"
                 placeholder="Description"
                 onChange={this.handleDescriptionChange}
+                value={this.state.description}
               />
             </Form.Group>
             <Form.Text className="text-muted">
@@ -82,7 +94,16 @@ class CabinetEditForm extends CabinetFolderEditForm {
 }
 
 const mapStateToProps = state => {
-  return { cabinetId: state.cabinets.editingCabinetId };
+
+  let currentCabinet = null;
+  if (state.cabinets.editingCabinetId != '_NEW_') {
+    currentCabinet = state.cabinets.byId[state.cabinets.editingCabinetId];
+  }
+
+  return {
+    cabinetId: state.cabinets.editingCabinetId,
+    cabinet: currentCabinet
+  };
 };
 export default connect(mapStateToProps, { editCabinetCancel, editCabinetSave })(
   CabinetEditForm

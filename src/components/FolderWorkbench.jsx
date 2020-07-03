@@ -69,7 +69,7 @@ class FolderWorkbench extends Folder {
           <span role="img" aria-label="Microscope">
             🔬
           </span>{" "}
-          Workbench ({specimens.length})
+          On workbench ({specimens.length})
         </button>
       </li>
     );

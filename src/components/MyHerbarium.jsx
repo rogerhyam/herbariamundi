@@ -33,6 +33,7 @@ class MyHerbarium extends Component {
             <FolderEdit />
             <FolderWaste />
           </CabinetTools>
+          <CabinetSavedSearches title="Saved Searches" key="savedSearches" />
 
   */
 
@@ -41,9 +42,7 @@ class MyHerbarium extends Component {
       <Fragment>
         <ul style={this.cabinetListStyle}>
           <CabinetMundi title="All Specimens" key="allSpecimens" />
-          <CabinetSavedSearches title="Saved Searches" key="savedSearches" />
-
-
+          <FolderWorkbench />
           {this.getDynamicCabinets()}
           <CabinetNew key="newcab" />
         </ul>
@@ -53,12 +52,14 @@ class MyHerbarium extends Component {
 
   getDynamicCabinets() {
     const { cabinets } = this.props;
-    return cabinets.map(cab => (
+    return cabinets.map((cab, index, allCabinets) => (
       <CabinetDynamic
         title={cab.title}
         description={cab.desciption}
         id={cab.id}
         key={cab.id}
+        isFirst={index == 0 ? true : false}
+        isLast={index >= allCabinets.length - 1 ? true : false}
       />
     ));
   }

@@ -25,8 +25,15 @@
         $cab_id = $mysqli->insert_id;
 
     }else{
-        // FIXME: UPDATING TIME
-        error_log('updating');
+        $stmt = $mysqli->prepare("UPDATE cabinet SET `title` = ?, `description` = ? WHERE id = ? AND `owner_id` = ?");
+        $stmt->bind_param("ssii", $cabinet->title, $cabinet->description, $cab_id, $_SESSION['user_id']);
+        $stmt->execute();
+
+        if($mysqli->error){
+            echo $mysqli->error;
+            error_log($mysqli->error);
+        }
+        
     }
 
     // finally return the saved version of tha cabinet as confirmation
