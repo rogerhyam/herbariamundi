@@ -11,19 +11,15 @@ class SpecimenBrowser extends Component {
     this.state = {};
   }
   render() {
-    const { specimens, title, description } = this.props;
-
     return (
       <Fragment>
-        {title && <strong>{title}: </strong>}
-        {description && <span>{description}</span>}
         {this.renderSpecimenCards()}
       </Fragment>
     );
   }
 
   renderSpecimenCards() {
-    const { specimens, associatedFolderId, loading } = this.props;
+    const { specimens, loading } = this.props;
 
     if (loading) {
       return <Fragment>Loading ... </Fragment>;
@@ -37,13 +33,12 @@ class SpecimenBrowser extends Component {
 
     return (
       <>
-        <Container fluid={true} style={{ padding: "0" }}>
+        <Container fluid="xl" style={{ padding: "0" }}>
           {specimens.map(sp => (
             <SpecimenCard
               specimen={sp}
               key={sp.id}
               mini={false}
-              associatedFolderId={associatedFolderId}
             />
           ))}
         </Container>
@@ -55,7 +50,7 @@ class SpecimenBrowser extends Component {
 //export default TextList;
 const mapStateToProps = state => {
   const { browser } = state.specimens;
-  const { title, description, associatedFolderId, loading } = browser;
+  const { loading } = browser;
   // expand the specimen ids into specimens
   const specimens = [];
   browser.specimenIds.map(id => {
@@ -63,6 +58,6 @@ const mapStateToProps = state => {
     return id;
   });
 
-  return { specimens, title, description, associatedFolderId, loading };
+  return { specimens, loading };
 };
 export default connect(mapStateToProps, { fetchSpecimens })(SpecimenBrowser);

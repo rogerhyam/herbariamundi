@@ -12,12 +12,9 @@ import { Provider } from "react-redux";
 import store from "../redux/store";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
-import MyHerbarium from "./MyHerbarium";
 import Workbench from "./Workbench";
 import SearchForm from "./SearchForm";
 import SearchFormPager from "./SearchFormPager";
-import CabinetEditForm from "./CabinetEditForm";
-import FolderEditForm from "./FolderEditForm";
 
 /**
  * Root component for the application
@@ -41,7 +38,7 @@ class HerbariaMundi extends Component {
                 variant="outline-success"
                 onClick={e =>
                   alert(
-                    "Authentication will be implemented in next update. Changes to cabinets & folders etc will then be stored permanently."
+                    "Authentication will be implemented in next update.   etc will then be stored permanently."
                   )
                 }
               >
@@ -53,32 +50,20 @@ class HerbariaMundi extends Component {
               */}
         <Tabs defaultActiveKey="specimens" id="mainTabs">
           <Tab eventKey="specimens" title="Herbaria Mundi">
-            <Container fluid={true} style={{ padding: 0 }}>
-              <Row noGutters={true}>
-                <Col md={2}>
-                  <p> </p>
-                  <MyHerbarium />
+            <Container fluid={true} style={{ marginTop: "1em", marginBottom: "1em" }}>
+              <Row>
+                <Col>
+                  <SearchForm />
                 </Col>
-                <Col style={{ padding: "1em" }}>
-                  <Container fluid={false}>
-                    <Row>
-                      <Col>
-                        <CabinetEditForm />
-                        <FolderEditForm />
-                        <SearchForm />
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col>
-                        <SpecimenBrowser />
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col style={{ textAlign: "center" }}>
-                        <SearchFormPager />
-                      </Col>
-                    </Row>
-                  </Container>
+              </Row>
+              <Row>
+                <Col>
+                  <SpecimenBrowser />
+                </Col>
+              </Row>
+              <Row>
+                <Col style={{ textAlign: "center" }}>
+                  <SearchFormPager />
                 </Col>
               </Row>
             </Container>
@@ -101,9 +86,9 @@ class HerbariaMundi extends Component {
                   width="560"
                   height="315"
                   src="https://www.youtube.com/embed/_4DuNBVsWW8"
-                  frameborder="0"
+                  frameBorder="0"
                   allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen
+                  allowFullScreen
                 ></iframe>
               </center>
               <p>&nbsp;</p>
@@ -191,7 +176,7 @@ class HerbariaMundi extends Component {
             </Container>
           </Tab>
         </Tabs>
-      </Provider>
+      </Provider >
     );
   }
 }

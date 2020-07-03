@@ -4,6 +4,12 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Tabs from "react-bootstrap/Tabs";
+import Tab from "react-bootstrap/Tab";
+import SpecimenCardModalTags from './SpecimenCardModalTags';
+
 import { showSpecimenModal } from "../redux/actions/showSpecimenModal";
 import { addSpecimen } from "../redux/actions/workbenchActions";
 import OpenSeadragon from 'openseadragon';
@@ -12,7 +18,7 @@ import OpenSeadragon from 'openseadragon';
 class SpecimenCardModal extends Component {
     constructor(props) {
         super(props);
-        this.state = { pickedFolderId: 'NO_PICKED_FOLDER' };
+        this.state = {};
     }
 
     hideModalDialogue = () => {
@@ -29,11 +35,6 @@ class SpecimenCardModal extends Component {
      * @param {event} e 
      */
     handleEntered = (e) => {
-        if (this.props.folders.focussedFolderId) {
-            this.setState({ pickedFolderId: this.props.folders.focussedFolderId });
-        } else {
-            this.setState({ pickedFolderId: 'NO_PICKED_FOLDER' });
-        }
         this.initLoupe();
     }
 
@@ -135,32 +136,12 @@ class SpecimenCardModal extends Component {
 
     }
 
-    selectCabinet = (e) => {
-        this.setState({ pickedFolderId: e.target.options[e.target.selectedIndex].value },
-            e => { console.log(this.state) }
-        )
+    handleTextChange = e => {
+
+        console.log(this.state.textControl);
+
     }
 
-    getFolderSelect() {
-        return (
-            <Form.Control as="select" onChange={this.selectCabinet} value={this.state.pickedFolderId}>
-                <option value="NO_PICKED_FOLDER" >Folders...</option>
-                {this.props.cabinets.cabinetIds.map(cid => {
-                    let cab = this.props.cabinets.byId[cid];
-                    return (
-                        <optgroup label={cab.title}>
-                            {
-                                cab.folderIds.map(fid => {
-                                    const folder = this.props.folders.byId[fid];
-                                    return (<option value={fid}>{folder.title} ({folder.specimenIds.length})</option>);
-                                })
-
-                            }
-                        </optgroup>);
-                })}
-            </Form.Control>
-        );
-    }
     render() {
 
         // let's work out what the bottom tile size is
@@ -179,29 +160,65 @@ class SpecimenCardModal extends Component {
                         <Modal.Title>Quick View</Modal.Title>
                     </Modal.Header>
                     <Modal.Body >
+                        <Tabs defaultActiveKey="tags" id="quickview-tabs">
+                            <Tab eventKey="quick-image" title="Image">
+
+                                <Container fluid={true}>
+                                    <Row nogutters md={12} lg={12}>
+                                        <Col md={8} lg={8}>
+                                            <div style={{ height: '500px', width: '100%' }} id="openseadragon1"></div>
+                                        </Col>
+                                        <Col md={4} lg={4}>
+                                            <div style={{ height: '500px', width: '100%' }} id="openseadragon1_nav"></div>
+                                        </Col>
+                                    </Row>
+                                </Container>
+                            </Tab>
+                            <Tab eventKey="tags" title="Tags">
+                                <SpecimenCardModalTags specimen={this.props.specimen} />
+                            </Tab>
+                            <Tab eventKey="dets" title="Determinations">
+                                <Container flow={true}>
+                                    <Row style={{ height: "500px" }}>
+                                        <Col>
+                                            <div style={{ overflowY: 'scroll', height: "150px", border: "solid gray 1px" }}>
+                                                <ul>
+                                                    <li>Other det 1</li>
+                                                    <li>Other det 2</li>
+                                                    <li>Other det 3</li>
+                                                    <li>Other det 4</li>
+                                                    <li>Other det 1</li>
+                                                    <li>Other det 2</li>
+                                                    <li>Other det 3</li>
+                                                    <li>Other det 4</li>
+                                                    <li>Other det 1</li>
+                                                    <li>Other det 2</li>
+                                                    <li>Other det 3</li>
+                                                    <li>Other det 4</li>
+                                                </ul>
+                                            </div></Col>
+                                    </Row>
+                                </Container>
+
+                            </Tab>
+                        </Tabs>
+
+
+                        { /*
                         <div style={{ height: '500px', width: '75%', float: 'left' }}>
                             <div style={{ height: '500px', width: '100%' }} id="openseadragon1"></div>
                         </div>
                         <div style={{ height: '500px', width: '20%', marginRight: '2em', float: 'right' }}>
                             <div style={{ height: '500px', width: '100%' }} id="openseadragon1_nav"></div>
+                            <div>My tag div</div>
                         </div>
+
+                        */}
                     </Modal.Body>
                     <Modal.Footer>
                         <Form style={{ width: "100%", textAlign: "right" }}>
-                            <Form.Row>
-                                <Col>
-                                    {this.getFolderSelect()}
-                                </Col>
-
-                                <Col>
-                                    <Button
-                                        variant="secondary"
-                                        onClick={this.hideModalDialogue}
-                                        disabled={this.state.pickedFolderId == "NO_PICKED_FOLDER"}
-                                    >
-                                        {this.props.folders.focussedFolderId == this.state.pickedFolderId ? 'Remove from ' : 'Add to '}
-                                          folder</Button>
-                                    {' '}
+                            <Form.Row nogutters md={12} lg={12}>
+                                <Col md={12} lg={12}>
                                     <Button variant="secondary" onClick={this.handleAddToWorkbench}>Add to Workbench</Button>
                                     {' '}
                                     <Button variant="primary" onClick={this.hideModalDialogue}>Close</Button>
@@ -217,16 +234,11 @@ class SpecimenCardModal extends Component {
 }
 
 const mapStateToProps = state => {
-
-
-
     return {
         modalVisible: state.specimens.modalSpecimen ? true : false,
         specimen: state.specimens.byId[state.specimens.modalSpecimen.id],
         x: state.specimens.modalSpecimen.x,
-        y: state.specimens.modalSpecimen.y,
-        cabinets: state.cabinets,
-        folders: state.folders
+        y: state.specimens.modalSpecimen.y
     };
 };
 export default connect(mapStateToProps, { showSpecimenModal, addSpecimen })(SpecimenCardModal);

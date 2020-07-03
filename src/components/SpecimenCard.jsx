@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import DraggableTypes from "./DraggableTypes";
 import { showSpecimenModal } from "../redux/actions/showSpecimenModal"
 
 class SpecimenCard extends Component {
@@ -11,14 +10,7 @@ class SpecimenCard extends Component {
     this.state = {};
   }
 
-  handleDragStart = (e, specimenDbId, specimenCetafId, associtedFolderId) => {
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("specimenDbId", specimenDbId);
-    e.dataTransfer.setData("specimenCetafId", specimenCetafId);
-    e.dataTransfer.setData("associtedFolderId", associtedFolderId);
-    e.dataTransfer.setData("type", DraggableTypes.SPECIMEN);
-    e.dataTransfer.setDragImage(e.target, 10, 10);
-  };
+
 
   handleShowModalDialogue = (e) => {
     let x = e.nativeEvent.offsetX;
@@ -45,7 +37,7 @@ class SpecimenCard extends Component {
   }
 
   getSpecimenPopover() {
-    const { specimen, associatedFolderId } = this.props;
+    const { specimen } = this.props;
 
     const title = specimen.hasOwnProperty("scientific_name_ss")
       ? specimen.scientific_name_ss
@@ -86,25 +78,27 @@ class SpecimenCard extends Component {
       <Popover id="popover-basic">
         <Popover.Title as="h3">{title}</Popover.Title>
         <Popover.Content>
-          <table>
-            <tbody>
-              {fields.map(f => {
-                // do nothing if we lac that property
-                if (!specimen.hasOwnProperty(f.name)) return "";
-                // otherwise write it as a label
-                return (
-                  <tr key={f.name}>
-                    <th style={{ textAlign: "right", verticalAlign: "top" }}>
-                      {f.label}:
+          {fields ? (
+            <table>
+              <tbody>
+                {fields.map(f => {
+                  // do nothing if we lac that property
+                  if (!specimen.hasOwnProperty(f.name)) return "";
+                  // otherwise write it as a label
+                  return (
+                    <tr key={f.name}>
+                      <th style={{ textAlign: "right", verticalAlign: "top" }}>
+                        {f.label}:
                     </th>
-                    <td style={{ textAlign: "left", verticalAlign: "top" }}>
-                      {this.getSpecimenPopoverTableValue(specimen, f)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <td style={{ textAlign: "left", verticalAlign: "top" }}>
+                        {this.getSpecimenPopoverTableValue(specimen, f)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : "No content"}
         </Popover.Content>
       </Popover>
     );
@@ -135,7 +129,7 @@ class SpecimenCard extends Component {
   }
 
   render() {
-    const { specimen, associatedFolderId } = this.props;
+    const { specimen } = this.props;
 
     let thumbnailUri = "/data/thumbnail_cache/" + specimen.thumbnail_path_s;
     if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
@@ -147,15 +141,6 @@ class SpecimenCard extends Component {
     return (
       <div
         key={specimen.id}
-        draggable={true}
-        onDragStart={e =>
-          this.handleDragStart(
-            e,
-            specimen.db_id_i,
-            specimen.id,
-            associatedFolderId
-          )
-        }
         style={{
           width: "200px", // fixed pixel width matched to the size the thumbnails are
           height: "365px", // fixed height or the float left won't work
@@ -171,7 +156,6 @@ class SpecimenCard extends Component {
           <img
             style={{ width: "200px" }}
             src={thumbnailUri}
-            draggable={false}
             onClick={this.handleShowModalDialogue}
           />
         </OverlayTrigger>

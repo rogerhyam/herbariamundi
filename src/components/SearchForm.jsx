@@ -70,6 +70,11 @@ class SearchForm extends Component {
 
   }
 
+  componentDidMount() {
+    // we run a search as soon as we load
+    this.runSearch();
+  }
+
   runSearch() {
 
     // firstly update the store with the current text values
@@ -556,9 +561,6 @@ class SearchForm extends Component {
                 <Button variant="secondary" onClick={this.handleReset}>
                   Reset
               </Button>
-                <Button variant="secondary" onClick={this.handleSave}>
-                  Save
-            </Button>
               </ButtonGroup>
             </ButtonToolbar>
           </Col>
