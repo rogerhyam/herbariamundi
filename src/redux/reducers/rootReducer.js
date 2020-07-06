@@ -196,6 +196,8 @@ const rootReducer = (state = initialState, action) => {
 
     // SAVE_TAG actions
     case ActionTypes.SAVE_TAG_BEGIN:
+    case ActionTypes.DELETE_TAG_BEGIN:
+    case ActionTypes.FETCH_TAGS_BEGIN:
       return {
         ...state,
         tags: {
@@ -208,18 +210,21 @@ const rootReducer = (state = initialState, action) => {
         }
       };
     case ActionTypes.SAVE_TAG_SUCCESS:
+    case ActionTypes.DELETE_TAG_SUCCESS:
       return {
         ...state,
         tags: {
           ...state.tags,
           forSpecimenId: action.fullResponse.specimenId,
-          ownTags: action.fullResponse.ownTags,
-          othersTags: action.fullResponse.othersTags,
+          ownTags: action.fullResponse.tags.ownTags,
+          othersTags: action.fullResponse.tags.othersTags,
           loading: false,
           error: false
         }
       };
     case ActionTypes.SAVE_TAG_FAILURE:
+    case ActionTypes.FETCH_TAGS_FAILURE:
+    case ActionTypes.DELETE_TAG_FAILURE:
       return {
         ...state,
         tags: {
@@ -231,6 +236,21 @@ const rootReducer = (state = initialState, action) => {
           error: action.payload.error
         }
       };
+
+    // FETCH TAGS
+    case ActionTypes.FETCH_TAGS_SUCCESS:
+      return {
+        ...state,
+        tags: {
+          ...state.tags,
+          forSpecimenId: action.fullResponse.fetched.specimenId,
+          ownTags: action.fullResponse.tags.ownTags,
+          othersTags: action.fullResponse.tags.othersTags,
+          loading: false,
+          error: false
+        }
+      };
+
 
     default:
       return state;

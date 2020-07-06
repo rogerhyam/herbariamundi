@@ -12,6 +12,7 @@ import SpecimenCardModalTags from './SpecimenCardModalTags';
 
 import { showSpecimenModal } from "../redux/actions/showSpecimenModal";
 import { addSpecimen } from "../redux/actions/workbenchActions";
+import { fetchTags } from "../redux/actions/fetchTags";
 import OpenSeadragon from 'openseadragon';
 
 
@@ -35,7 +36,13 @@ class SpecimenCardModal extends Component {
      * @param {event} e 
      */
     handleEntered = (e) => {
+
+        // make the images work
         this.initLoupe();
+
+        // update the tags 
+        this.props.fetchTags(this.props.specimen.id, this.props.specimen.db_id_i);
+
     }
 
     initLoupe() {
@@ -160,7 +167,7 @@ class SpecimenCardModal extends Component {
                         <Modal.Title>Quick View</Modal.Title>
                     </Modal.Header>
                     <Modal.Body >
-                        <Tabs defaultActiveKey="tags" id="quickview-tabs">
+                        <Tabs defaultActiveKey="quick-image" id="quickview-tabs">
                             <Tab eventKey="quick-image" title="Image">
 
                                 <Container fluid={true}>
@@ -177,43 +184,7 @@ class SpecimenCardModal extends Component {
                             <Tab eventKey="tags" title="Tags">
                                 <SpecimenCardModalTags specimen={this.props.specimen} />
                             </Tab>
-                            <Tab eventKey="dets" title="Determinations">
-                                <Container flow={true}>
-                                    <Row style={{ height: "500px" }}>
-                                        <Col>
-                                            <div style={{ overflowY: 'scroll', height: "150px", border: "solid gray 1px" }}>
-                                                <ul>
-                                                    <li>Other det 1</li>
-                                                    <li>Other det 2</li>
-                                                    <li>Other det 3</li>
-                                                    <li>Other det 4</li>
-                                                    <li>Other det 1</li>
-                                                    <li>Other det 2</li>
-                                                    <li>Other det 3</li>
-                                                    <li>Other det 4</li>
-                                                    <li>Other det 1</li>
-                                                    <li>Other det 2</li>
-                                                    <li>Other det 3</li>
-                                                    <li>Other det 4</li>
-                                                </ul>
-                                            </div></Col>
-                                    </Row>
-                                </Container>
-
-                            </Tab>
                         </Tabs>
-
-
-                        { /*
-                        <div style={{ height: '500px', width: '75%', float: 'left' }}>
-                            <div style={{ height: '500px', width: '100%' }} id="openseadragon1"></div>
-                        </div>
-                        <div style={{ height: '500px', width: '20%', marginRight: '2em', float: 'right' }}>
-                            <div style={{ height: '500px', width: '100%' }} id="openseadragon1_nav"></div>
-                            <div>My tag div</div>
-                        </div>
-
-                        */}
                     </Modal.Body>
                     <Modal.Footer>
                         <Form style={{ width: "100%", textAlign: "right" }}>
@@ -241,4 +212,4 @@ const mapStateToProps = state => {
         y: state.specimens.modalSpecimen.y
     };
 };
-export default connect(mapStateToProps, { showSpecimenModal, addSpecimen })(SpecimenCardModal);
+export default connect(mapStateToProps, { showSpecimenModal, addSpecimen, fetchTags })(SpecimenCardModal);

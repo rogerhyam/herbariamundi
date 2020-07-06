@@ -1,33 +1,34 @@
 import ActionTypes from "./actionTypes";
 
-export function saveTag(tagText, specimenId) {
+export function saveTag(tagText, specimenId, specimenDbId) {
     return dispatch => {
-        dispatch(saveTagBegin(tagText, specimenId));
+        dispatch(saveTagBegin(tagText, specimenId, specimenDbId));
 
         const requestOptions = {
             method: "POST",
-            body: JSON.stringify({ tagText, specimenId }),
+            body: JSON.stringify({ tagText, specimenId, specimenDbId }),
             headers: {
                 Accept: "application/json"
             }
         };
 
-        return fetch("/tags.php", requestOptions)
+        return fetch("/tags.php?verb=save", requestOptions)
             .then(handleErrors)
             .then(res => res.json())
             .then(json => {
-                let fullResponse = JSON.parse(json);
-                dispatch(saveTagSuccess(fullResponse));
+                // this is already json so no casting necessary ?
+                dispatch(saveTagSuccess(json));
                 return json;
             })
             .catch(error => dispatch(saveTagFailure(error)));
     };
 }
 
-export const saveTagBegin = (tagText, specimenId) => ({
+export const saveTagBegin = (tagText, specimenId, specimenDbId) => ({
     type: ActionTypes.SAVE_TAG_BEGIN,
     tagText,
-    specimenId
+    specimenId,
+    specimenDbId
 });
 
 export const saveTagSuccess = fullResponse => ({
