@@ -1,6 +1,12 @@
+/*
 import React, { Component } from "react";
 import mirador from "mirador";
 import { connect } from "react-redux";
+
+
+  Left here for reference as mirador now removed.
+
+
 
 class Workbench extends Component {
   constructor(props) {
@@ -43,12 +49,15 @@ class Workbench extends Component {
     const { manifests } = nextProps;
     const { store, actions } = this.miradorInstance;
 
+    console.log(this.miradorInstance);
+
     // add any new ones
     const manifestsToAdd = manifests.filter(id => {
       return !this.manifests.includes(id);
     });
     manifestsToAdd.map(id => {
-      store.dispatch(actions.fetchManifest(id));
+      //store.dispatch(actions.fetchManifest(id));
+      store.dispatch({ manifestId: id, type: 'mirador/REQUEST_MANIFEST' });
       this.manifests.push(id);
       return id;
     });
@@ -58,7 +67,8 @@ class Workbench extends Component {
       return !manifests.includes(id);
     });
     manifestsToRemove.map(id => {
-      store.dispatch(actions.removeManifest(id));
+      //store.dispatch(actions.removeManifest(id));
+      store.dispatch({ manifestId: id, type: 'mirador/REMOVE_MANIFEST' });
       this.manifests = this.manifests.filter(mid => {
         return mid !== id;
       });
@@ -96,3 +106,6 @@ const mapStateToProps = state => {
 };
 export default connect(mapStateToProps, {})(Workbench);
 //export default Workbench;
+
+
+*/

@@ -15,6 +15,7 @@ switch ($_GET['verb']) {
         $out['specimenDbId'] = $payload->specimenDbId;
         $out['saved'] = save_tag($payload->tagText, $payload->specimenId, $payload->specimenDbId, $user_id);
         $out['tags'] = fetch_tags($payload->specimenId, $payload->specimenDbId, $user_id);
+        update_solr($payload->specimenId, $payload->tagText, false);
         break;
 
     case 'delete':
@@ -22,7 +23,8 @@ switch ($_GET['verb']) {
         $out['specimenDbId'] = $payload->specimenDbId;
         $out['deleted'] = delete_tag($payload->tagId, $payload->specimenId, $payload->specimenDbId, $user_id);
         $out['tags'] = fetch_tags($payload->specimenId, $payload->specimenDbId, $user_id);
-    break;
+        update_solr($payload->specimenId, $payload->tagText, true);
+        break;
     
     case 'fetch':
         $out['specimenId'] = $payload->specimenId;
@@ -40,6 +42,36 @@ switch ($_GET['verb']) {
     default:
         $out['error'] = 'Unrecognised verb: ' . $_GET['verb'];
         break;
+
+}
+
+function update_solr($specimen_id, $tag_text, $remove = false){
+
+    $doc = array();
+    $doc['id'] = $specimen_id;
+
+    if(!$remove){
+        $doc['tags_ss'] = array( "add" => array($tag_text));
+    }else{
+        $doc['tags_ss'] = array( "remove" => array($tag_text));
+    }
+    
+    solr_add_docs(array($doc));
+    solr_commit();
+
+    
+        /*
+    
+        {"id":"mydoc",
+     "price":{"set":99},
+     "popularity":{"inc":20},
+     "categories":{"add":["toys","games"]},
+     "promo_ids":{"remove":"a123x"},
+     "tags":{"remove":["free_to_try","on_sale"]}
+    }
+    
+    */
+    
 
 }
 

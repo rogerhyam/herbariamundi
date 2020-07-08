@@ -82,17 +82,33 @@ class SearchForm extends Component {
 
     // let us build the query for Solr
     let query = {};
+    query.facet = {};
+    query.filter = [];
 
-    // add the text to the query
-    query.query = this.state.searchText ? this.state.searchText : '*:*';
+    // taggify the query string
+    // #words starting with a hash should be removed from the query string
+    // and be turned into filters based on the tags field
+    if (this.state.searchText && this.state.searchText.length > 0) {
+
+      let tags = this.state.searchText.match(/#\S+/gi);
+      if (tags) {
+        tags.map(t => {
+          // we add the tag as a filter (without the hash and lower cased)
+          query.filter.push("tags_ss:" + t.replace('#', '').toLowerCase());
+        });
+      }
+      // remove the tags from the query and make it the new one
+      let clean = this.state.searchText.replace(/#\S+/gi, '').trim();
+      query.query = clean ? clean : '*:*';
+
+    } else {
+      // nothing in the query string so search for everything
+      query.query = '*:*';
+    }
 
     // restrict to XX 
     query.limit = this.props.pageSize;
     query.offset = this.props.offset;
-
-    // work through the facets we have.
-    query.facet = {};
-    query.filter = [];
 
     // we turn facetting on if a value is set
     // for any of the facets

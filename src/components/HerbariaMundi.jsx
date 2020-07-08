@@ -68,9 +68,11 @@ class HerbariaMundi extends Component {
               </Row>
             </Container>
           </Tab>
+          {/*}
           <Tab eventKey="workbench" title="Workbench" id="Workbench01">
             <Workbench />
           </Tab>
+            {*/}
           <Tab eventKey="about" title="About">
             <Container style={{ paddingTop: "2em" }}>
               <h2>About</h2>

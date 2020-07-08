@@ -109,7 +109,7 @@ function solr_index_specimen_by_id($row_id){
         set_error_handler(function($errno, $errstr, $errfile, $errline) { 
             echo "Problem creating thumbnail\n";
             echo "$errstr\n$errfile line: $errline";
-            exit;
+            //exit;
         });
         mkdir($thumb_dir_local_path, 0777, true);
         restore_error_handler();
@@ -125,6 +125,11 @@ function solr_index_specimen_by_id($row_id){
 
         file_put_contents($thumb_file_local_path, fopen($thumbnail_remote_uri, 'r'));
     }
+
+
+    // FIXME - add any tags we have in the database for this specimen
+    // if it has been in the system before it may have aquired them
+    // ditto determinations
 
     // finally timestamp it 
     $solr_doc->last_indexed_dt = 'NOW';
@@ -155,7 +160,7 @@ function parse_rdf_xml($xml, $cetaf_id_normative){
 
     $ch = get_curl_handle($rdf2json_api_uri);
     curl_setopt($ch, CURLOPT_POST, 1);
-    
+
     curl_setopt($ch, CURLOPT_POSTFIELDS, $post_params);
     $response = run_curl_request($ch);
 

@@ -1,13 +1,13 @@
 import ActionTypes from "./actionTypes";
 
-export function deleteTag(tagId, specimenId, specimenDbId) {
+export function deleteTag(tagId, tagText, specimenId, specimenDbId) {
     return dispatch => {
 
         dispatch(deleteTagBegin(tagId, specimenId, specimenDbId));
 
         const requestOptions = {
             method: "POST",
-            body: JSON.stringify({ tagId, specimenId, specimenDbId }),
+            body: JSON.stringify({ tagId, tagText, specimenId, specimenDbId }),
             headers: {
                 Accept: "application/json"
             }

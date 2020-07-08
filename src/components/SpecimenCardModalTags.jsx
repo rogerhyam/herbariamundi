@@ -39,8 +39,7 @@ class SpecimenCardModalTags extends Component {
     handleTextInputChange = e => {
 
         // we need to prevent introduction of whitespace or #
-
-        let value = e.target.value.replace(/\s+/g, '-');
+        let value = e.target.value.replace(/\W+/gi, '-');
         value = value.replace('#', '');
         value = value.toLowerCase();
 
@@ -71,11 +70,19 @@ class SpecimenCardModalTags extends Component {
     }
 
     handleDeleteTag = e =>{
+        let tagId = e.nativeEvent.target.id;
+        let tagText = null;
+        this.props.ownTags.map(t => {
+            if(t.id == tagId)tagText = t.text;
+        });
+
         this.props.deleteTag(
-            e.nativeEvent.target.id,
+            tagId,
+            tagText,
             this.props.specimen.id,
             this.props.specimen.db_id_i
         );
+
         e.preventDefault();
     }
 

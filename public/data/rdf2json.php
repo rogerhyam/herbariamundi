@@ -15,7 +15,6 @@
     Cost is a local HTTP call for every document.
     
  */
-
 require 'vendor/autoload.php';
 error_reporting(E_ERROR | E_PARSE); // there are a bunch of deprecation warnings in EasyRdf
 

@@ -17,8 +17,7 @@ function get_curl_handle($uri){
  */
 function run_curl_request($curl){
    
-   $out['response'] = curl_exec($curl);
-   
+   $out['response'] = curl_exec($curl);  
    $out['error'] = curl_errno($curl);
    
     if(!$out['error']){
