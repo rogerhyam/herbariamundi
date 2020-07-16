@@ -1,7 +1,5 @@
 <?php
 
-require_once('config.php');
-
 // This file handles the routing for IIIF requests
 
 $matches = array();

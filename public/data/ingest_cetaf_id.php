@@ -7,6 +7,8 @@ require_once('include/curl_functions.php');
 
 // will import/update specimens based on supplied cetaf_id
 
+// e.g. nohup php ingest_cetaf_id.php -f _e_specimens.php -l 100000 -o 325000  -n true &
+
 // ids to be ingested
 $cetaf_ids = array();
 $out = array();
@@ -16,7 +18,7 @@ if(php_sapi_name() === 'cli'){
 
     $cli_mode = true;
 
-    $ops = getopt('i:f:l:o:');
+    $ops = getopt('i:f:l:o:n');
 
     // the i option is a single id to be ingested
     // the option can be repeated
@@ -75,6 +77,7 @@ array_walk($cetaf_ids, function(&$value){
 
 
 // work through the ids
+$counter = 0;
 foreach($cetaf_ids as $cetaf_id){
 
     // check it is a valid uri
@@ -85,7 +88,8 @@ foreach($cetaf_ids as $cetaf_id){
 
     // check if we already have it.
     if($new_only && db_specimen_exists($cetaf_id)){
-        $out[$cetaf_id]['exists'] = "Specimen already in database so continuing to next";
+        echo "\n$counter : Specimen already in database so continuing to next: $cetaf_id ";
+        $counter++;
         continue;
     }
 
@@ -146,9 +150,23 @@ foreach($cetaf_ids as $cetaf_id){
 
     // now we go on and index the thing
     $out[$cetaf_id]['solr_indexing_response'] = solr_index_specimen_by_id($row_id);
+    if(!$out[$cetaf_id]['solr_indexing_response']){
+        echo "\nFailed to index $cetaf_id - skipping.\n";
+        continue;
+    } 
     $out[$cetaf_id]['solr_commmit_response'] = json_decode( solr_commit() );
 
-}
+    // if we are in cli mode we don't save the whole output
+    // from the process or the object would get massive
+    if($cli_mode && $out[$cetaf_id]['solr_commmit_response']){
+        $out[$cetaf_id] = date(DATE_ATOM);
+        // output progress in case we fall over
+        echo "\n$counter : $cetaf_id";
+    }
+
+    $counter++;
+
+} // end looping through IDs
 
 if($cli_mode){
     print_r($out);

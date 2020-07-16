@@ -100,6 +100,7 @@ function solr_index_specimen_by_id($row_id){
     // nothing should be in the index unless it has a thumbnail so even if this 
     // is slow it is necessary and counts as part of indexing process!
     $thumbnail_remote_uri = get_thumbnail_uri_from_manifest($solr_doc->iiif_manifest_uri_ss[0], 400);
+    if(!$thumbnail_remote_uri) return null; // get out of here as not got a thumbnail link.
     $solr_doc->thumbnail_remote_uri_s = $thumbnail_remote_uri;
 
     // does the thumbnail alread exist?
@@ -107,8 +108,9 @@ function solr_index_specimen_by_id($row_id){
 
         // create the dir if needed
         set_error_handler(function($errno, $errstr, $errfile, $errline) { 
-            echo "Problem creating thumbnail\n";
-            echo "$errstr\n$errfile line: $errline";
+            echo "\nProblem creating thumbnail";
+            echo "\n$thumb_dir_local_path";
+            echo "\n$errstr\n$errfile line: $errline";
             //exit;
         });
         mkdir($thumb_dir_local_path, 0777, true);
@@ -184,10 +186,19 @@ function get_thumbnail_uri_from_manifest($manifest_uri, $size){
     
     // is it version 1 or 2?
     $version = false;
-    foreach($manifest->{'@context'} as $context){
-        if($context == 'http://iiif.io/api/presentation/2/context.json') $version = 2;
-        if($context == 'http://iiif.io/api/presentation/3/context.json') $version = 3;
+    if(property_exists($manifest, '@context')){
+        foreach($manifest->{'@context'} as $context){
+            if($context == 'http://iiif.io/api/presentation/2/context.json') $version = 2;
+            if($context == 'http://iiif.io/api/presentation/3/context.json') $version = 3;
+        }
+    }else{
+
+        // we don't know the context. This probably isn't a manifest
+        echo "\nFAILED to find manifest version for : " . $manifest_uri . "\n";
+        return null;
+
     }
+    
     
     switch ($version) {
         

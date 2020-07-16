@@ -4,6 +4,7 @@ import ActionTypes from "../actions/actionTypes";
 // saves lots of checking for things being defined or not
 // later
 const initialState = {
+  user: false,
   specimens: {
     byId: {},
     workbench: {
@@ -55,6 +56,33 @@ const initialState = {
 
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
+
+    // USER STUFF
+    case ActionTypes.UPDATE_AUTHENTICATION_STATUS_BEGIN:
+      return {
+        ...state,
+        user: {
+          logged_in: false,
+          message: "Loading ..."
+        }
+      };
+
+    case ActionTypes.UPDATE_AUTHENTICATION_STATUS_FAILURE:
+      return {
+        ...state,
+        user: {
+          logged_in: false,
+          message: action.fullResponse.error
+        }
+      };
+
+    case ActionTypes.UPDATE_AUTHENTICATION_STATUS_SUCCESS:
+      return {
+        ...state,
+        user: action.fullResponse.user
+      };
+
+    // SEARCH STUFF
 
     case ActionTypes.SEARCH_FACET_CHANGE:
       let oldSearch = state.search.current;

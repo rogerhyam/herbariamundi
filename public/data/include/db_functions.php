@@ -98,5 +98,23 @@ function db_get_genera($text){
 
 }
 
+function db_specimen_exists($cetaf_id){
+
+    global $mysqli;
+
+    $cetaf_id_normative = preg_replace('/^http:|^https:/i', '', $cetaf_id);
+
+    $stmt = $mysqli->prepare("SELECT count(*) as n FROM specimen WHERE `cetaf_id_normative` = ?") ;
+    $stmt->bind_param('s', $cetaf_id_normative);
+    $stmt->execute();
+    $stmt->bind_result($n);
+    $stmt->fetch();
+    $stmt->close();
+
+    if($n > 0) return true;
+    else return false;
+
+}
+
 
 ?>

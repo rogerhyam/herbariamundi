@@ -9,11 +9,11 @@ import Row from "react-bootstrap/Row";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import SpecimenCardModalTags from './SpecimenCardModalTags';
-
 import { showSpecimenModal } from "../redux/actions/showSpecimenModal";
 import { addSpecimen } from "../redux/actions/workbenchActions";
 import { fetchTags } from "../redux/actions/fetchTags";
 import OpenSeadragon from 'openseadragon';
+//import { Manifesto } from 'manifesto.js';
 
 
 class SpecimenCardModal extends Component {
@@ -23,11 +23,6 @@ class SpecimenCardModal extends Component {
     }
 
     hideModalDialogue = () => {
-        this.props.showSpecimenModal(false);
-    }
-
-    handleAddToWorkbench = () => {
-        this.props.addSpecimen(this.props.specimen.id);
         this.props.showSpecimenModal(false);
     }
 
@@ -50,6 +45,9 @@ class SpecimenCardModal extends Component {
         if (!this.props.specimen) return;
 
         let manifestUri = this.props.specimen.iiif_manifest_uri_ss[0];
+
+        // Manifesto.loadManifest(manifestUri).then(man => console.log(man));
+
         let imgServiceUri = null;
         fetch(manifestUri)
             .then(response => response.json())
@@ -190,8 +188,6 @@ class SpecimenCardModal extends Component {
                         <Form style={{ width: "100%", textAlign: "right" }}>
                             <Form.Row nogutters md={12} lg={12}>
                                 <Col md={12} lg={12}>
-                                    <Button variant="secondary" onClick={this.handleAddToWorkbench}>Add to Workbench</Button>
-                                    {' '}
                                     <Button variant="primary" onClick={this.hideModalDialogue}>Close</Button>
                                 </Col>
                             </Form.Row>

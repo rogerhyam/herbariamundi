@@ -13,11 +13,7 @@ class SpecimenCardModalTags extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            items: [
-                { id: 'foo', label: 'foo' },
-                { id: 'bar', label: 'bar' },
-                { id: 'baz', label: 'baz' },
-            ]
+            items: []
         };
     }
 

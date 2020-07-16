@@ -9,17 +9,6 @@ require('vendor/autoload.php');
 // db credentials are kept here.
 require_once('../../mundi_secret.php');
 
-// URI of OMI-PMH end point at Zenodo to follow
-// this is the community with all the specimens in it
-define('ZENODO_OAI_PMH_URI', 'https://zenodo.org/oai2d');
-
-// Where do we store IIIF data from Zenodo
-// check permissions on this when installing
-// end in slash
-//define('ZENODO_SPECIMEN_CACHE', 'zenodo_cache/'); // live
-define('ZENODO_SPECIMEN_CACHE', 'data/zenodo_cache/'); // dev
-
-
 //define('THUMBNAIL_CACHE', 'thumbnail_cache/'); // live
 define('THUMBNAIL_CACHE', 'thumbnail_cache/'); // dev
 
@@ -30,6 +19,24 @@ define('PROTOCOL_HOST_PORT_WWW', 'https://www.herbariamundi.org');
 
 // note core name is defined here
 define('SOLR_QUERY_URI','http://localhost:8983/solr/mundi1');
+
+// ORCID Connection details
+// client id and secret are loaded in the secret file
+// define('ORCID_CLIENT_ID', "XXXXXXXXXXX");
+// define('ORCID_CLIENT_SECRET', 'XXXXXXXXXXXXX');
+define('ORCID_TOKEN_URI', 'https://orcid.org/oauth/token');
+
+// the redirect uri depends on live or not
+if(getenv('HERBARIA_MUNDI_DEV')){
+  define('ORCID_REDIRECT_URI', 'http://localhost:3000/orcid_redirect.html');
+}else{
+  define('ORCID_REDIRECT_URI', 'https://www.herbariamundi.org/orcid_redirect.html');
+}
+
+// the login uri is constructed from variables above
+define('ORCID_LOGIN_URI', 'https://orcid.org/oauth/authorize?client_id='. ORCID_CLIENT_ID .'&response_type=code&scope=/authenticate&redirect_uri=' . ORCID_REDIRECT_URI);
+
+
 
 // create and initialise the database connection
 $mysqli = new mysqli($db_host, $db_user, $db_password, $db_database);
@@ -42,39 +49,36 @@ if ($mysqli->connect_error) {
 if (!$mysqli->set_charset("utf8")) {
   echo printf("Error loading character set utf8: %s\n", $mysqli->error);
 }
-// create an anonymous use if there isn't already one.
+
+// all calls must have a user of some kind unless overriden.
 if(php_sapi_name() !== 'cli'){
 
-  // check we have a user_id in the session that is  in the db
+  // check we have a user_id in the session that is in the db
   $valid_session = false;
   if(isset($_SESSION['user_id'])){
      $result = $mysqli->query("SELECT * FROM user where id = " . $_SESSION['user_id'] );
      if($result->num_rows){
         $valid_session = true;
+        $user_id = $_SESSION['user_id'];
+        $user_name = $_SESSION['user_name'];
      }
   }
-  // no valid session so create one
-  if(!$valid_session){
-    $access_token = session_id();
-    $result = $mysqli->query("SELECT * FROM user where orcid is null and access_token='$access_token'");
-    if($result->num_rows){
-      $row = $result->fetch_assoc();
-      $_SESSION['user_id'] = $row['id'];  
-      $_SESSION['user_name'] = $row['name'];
-    }else{
-      $name = 'Anonymous';
-      $mysqli->query("INSERT INTO user (`name`, `access_token`) values ('$name', '$access_token')");
-      $_SESSION['user_id'] = $mysqli->insert_id;
-      $_SESSION['user_name'] = $name;
-    }
+
+  // for simplicity we set the authentication_override to false if it isn't set
+  if(!isset($authentication_override)) $authentication_override = false;
+
+  // If we don't have a valid user in the session and 
+  // we haven't explicitly overriden the authentication (e.g. for login script)
+  // we throw a 403: Forbidden.
+  if(!$valid_session &&  !$authentication_override ){
+    http_response_code(403);
+    exit;
   }
-  
-  // so we have them handy
-  $user_id = $_SESSION['user_id'];
-  $user_name = $_SESSION['user_name'];
 
 }else{
 
+  // we are called by a cli script so we are by default
+  // logged in as user zero
   $user_id = 0;
   $user_name = get_current_user();
 
