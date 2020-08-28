@@ -98,6 +98,19 @@ function db_get_genera($text){
 
 }
 
+function db_set_iiif_status($db_id, $status){
+    
+    global $mysqli;
+
+    $stmt = $mysqli->prepare("UPDATE specimen SET iiif_status = ? WHERE id = ?;") ;
+    $stmt->bind_param('si', $status, $db_id);
+    $stmt->execute();
+    $stmt->close();
+
+    return true;
+
+}
+
 function db_specimen_exists($cetaf_id){
 
     global $mysqli;
@@ -116,5 +129,29 @@ function db_specimen_exists($cetaf_id){
 
 }
 
+function db_set_failed_cetaf_id($cetaf_id){
+
+    global $mysqli;
+
+    $stmt = $mysqli->prepare("INSERT INTO cetaf_id_fails (`cetaf_id`) VALUES (?)");
+    $stmt->bind_param('s', $cetaf_id);
+    $stmt->execute();
+
+}
+
+function db_is_failed_cetaf_id($cetaf_id){
+
+    global $mysqli;
+
+    $stmt = $mysqli->prepare("SELECT count(*) as n FROM cetaf_id_fails WHERE `cetaf_id` = ?") ;
+    $stmt->bind_param('s', $cetaf_id);
+    $stmt->execute();
+    $stmt->bind_result($n);
+    $stmt->fetch();
+    $stmt->close();
+
+    if($n > 0) return true;
+    else return false;
+}
 
 ?>

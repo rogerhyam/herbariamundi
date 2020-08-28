@@ -2,6 +2,7 @@
 
 require_once('include/curl_functions.php');
 require_once('include/db_functions.php');
+require_once('include/ManifestWrapper.php');
 
 /*
 
@@ -61,7 +62,12 @@ function solr_index_specimen_by_id($row_id){
 
     $specimen_data = db_get_specimen_data_by_row_id($row_id);
 
-    $solr_doc = parse_rdf_xml($specimen_data['raw'], $specimen_data['cetaf_id_normative']);
+    $xml_string = $specimen_data['raw'];
+
+     // clunge for BGBM as of July 2020 - can probably be removed if they fixed their typo
+    $xml_string = str_replace("//herbarium.bgbm.org//B", '//herbarium.bgbm.org/object/B', $xml_string);
+
+    $solr_doc = parse_rdf_xml($xml_string, $specimen_data['cetaf_id_normative']);
 
     $solr_doc->db_id_i = $row_id; // just incase we need it
     $solr_doc->cetaf_id_preferred_s = $specimen_data['cetaf_id_preferred']; // the one we use for links
@@ -72,7 +78,7 @@ function solr_index_specimen_by_id($row_id){
     if(!$herbaria_mundi_providers){
         $result = $mysqli->query("SELECT * FROM provider");
         $herbaria_mundi_providers = $result->fetch_all(MYSQLI_ASSOC);
-        $result -> free_result();
+        $result->free_result();
     }
 
     foreach ($herbaria_mundi_providers as $provider) {
@@ -99,7 +105,19 @@ function solr_index_specimen_by_id($row_id){
 
     // nothing should be in the index unless it has a thumbnail so even if this 
     // is slow it is necessary and counts as part of indexing process!
-    $thumbnail_remote_uri = get_thumbnail_uri_from_manifest($solr_doc->iiif_manifest_uri_ss[0], 400);
+
+    if(!isset($solr_doc->iiif_manifest_uri_ss[0])){
+        error_log("No manifest URI found in RDF so giving up on indexing $row_id" );
+        // print_r($solr_doc);
+        db_set_iiif_status($row_id, 'NOT_FOUND');
+        return null;
+    }
+
+    // flag the fact that we have a IIIF Manifest
+    db_set_iiif_status($row_id, 'FOUND');
+    $wrapper = ManifestWrapper::getWrapper($solr_doc->iiif_manifest_uri_ss[0]);
+    $thumbnail_remote_uri = $wrapper->getThumbnailUri(400);
+    
     if(!$thumbnail_remote_uri) return null; // get out of here as not got a thumbnail link.
     $solr_doc->thumbnail_remote_uri_s = $thumbnail_remote_uri;
 
@@ -108,9 +126,9 @@ function solr_index_specimen_by_id($row_id){
 
         // create the dir if needed
         set_error_handler(function($errno, $errstr, $errfile, $errline) { 
-            echo "\nProblem creating thumbnail";
-            echo "\n$thumb_dir_local_path";
-            echo "\n$errstr\n$errfile line: $errline";
+            //echo "\nProblem creating thumbnail";
+            //echo "\n$thumb_file_local_path";
+            // echo "\n$errstr\n$errfile line: $errline";
             //exit;
         });
         mkdir($thumb_dir_local_path, 0777, true);
@@ -174,95 +192,5 @@ function parse_rdf_xml($xml, $cetaf_id_normative){
     return $solr_doc;
 }
 
-function get_thumbnail_uri_from_manifest($manifest_uri, $size){
-    
-    // if we are in dev we use a different URI for the manifest
-    if(getenv('HERBARIA_MUNDI_DEV')){
-        $manifest_uri = str_replace('https://data.herbariamundi.org','http://localhost:3100/data', $manifest_uri);
-    }
-
-    $json = file_get_contents($manifest_uri);
-    $manifest = json_decode($json);
-    
-    // is it version 1 or 2?
-    $version = false;
-    if(property_exists($manifest, '@context')){
-        foreach($manifest->{'@context'} as $context){
-            if($context == 'http://iiif.io/api/presentation/2/context.json') $version = 2;
-            if($context == 'http://iiif.io/api/presentation/3/context.json') $version = 3;
-        }
-    }else{
-
-        // we don't know the context. This probably isn't a manifest
-        echo "\nFAILED to find manifest version for : " . $manifest_uri . "\n";
-        return null;
-
-    }
-    
-    
-    switch ($version) {
-        
-        case 2:
-            $image_uri = extract_image_uri_from_v2_manifest($manifest);
-        break;
-        
-        case 3:
-            $image_uri = extract_image_uri_from_v3_manifest($manifest);
-        break;
-
-        default:
-            return null;
-    }
-    return $image_uri . '/full/,' .  $size . '/0/default.jpg';
-
-}
-
-
-function extract_image_uri_from_v2_manifest($manifest){
-
-    foreach($manifest->sequences as $sequence){
-        foreach($sequence->canvases as $canvas){
-            foreach($canvas->images as $image){
-                if(isset($image->resource->service) && $image->resource->{'@type'} == 'dctypes:Image'){
-                    return $image->resource->service->{'@id'};
-                }
-            }
-        }
-    }
-    return null;
-    
-}
-
-function extract_image_uri_from_v3_manifest($manifest){
-
-    // get the first canvas item
-    foreach($manifest->items as $item){
-        if($item->type != 'Canvas') continue;
-        else $canvas = $item;
-    }
-
-    // it has an AnnotationPage in its items
-    foreach($canvas->items as $item){
-        if($item->type != 'AnnotationPage') continue;
-        else $annotation_page = $item;
-    }
-
-    // it has annotations with painting intent
-    foreach($annotation_page->items as $item){
-        if($item->type != 'Annotation') continue;
-        if(strcasecmp($item->motivation, 'painting') !== 0) continue; // painting may not be in right case
-        else $annotation = $item;
-    }
-
-    foreach($annotation->body->service as $service){
-        if($service->type == 'ImageService3'){
-            return $service->id;
-        }
-    }
-
-    // got to here so something went wrong
-    return null;
-
-}
 
 ?>

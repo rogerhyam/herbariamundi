@@ -34,7 +34,8 @@ const initialState = {
         genus_ss: null,
         specific_epithet_ss: null,
         country_code_ss: null,
-        year_i: null
+        year_i: null,
+        provider_name_s: null
       }
     },
     facetTerms: {

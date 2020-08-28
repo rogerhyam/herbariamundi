@@ -13,8 +13,6 @@ import { showSpecimenModal } from "../redux/actions/showSpecimenModal";
 import { addSpecimen } from "../redux/actions/workbenchActions";
 import { fetchTags } from "../redux/actions/fetchTags";
 import OpenSeadragon from 'openseadragon';
-//import { Manifesto } from 'manifesto.js';
-
 
 class SpecimenCardModal extends Component {
     constructor(props) {
@@ -44,84 +42,27 @@ class SpecimenCardModal extends Component {
 
         if (!this.props.specimen) return;
 
-        let manifestUri = this.props.specimen.iiif_manifest_uri_ss[0];
+        const manifestUri = this.props.specimen.iiif_manifest_uri_ss[0];
 
-        // Manifesto.loadManifest(manifestUri).then(man => console.log(man));
+        // extract the image service for the first painting annotation of the first canvas
+        // and set it in thes state
+        const requestOptions = {
+            method: "POST",
+            body: JSON.stringify({ 'manifest_uri': manifestUri }),
+            headers: { Accept: "application/json" }
+        };
 
-        let imgServiceUri = null;
-        fetch(manifestUri)
-            .then(response => response.json())
-            .then((jsonData) => {
-                // extract the location of the image server info.json
-                for (let index = 0; index < jsonData['@context'].length; index++) {
-                    const context = jsonData['@context'][index];
-                    switch (context) {
-                        case 'http://iiif.io/api/presentation/2/context.json':
-                            console.log("It is a type 2 manifest");
-                            imgServiceUri = this.getImageServiceUriType2Manifest(jsonData);
-                            break;
-                        case 'http://iiif.io/api/presentation/3/context.json':
-                            console.log("It is a type 3 manifest");
-                            imgServiceUri = this.getImageServiceUriType3Manifest(jsonData);
-                            break;
-                    }
-
-                }
-
-                // careful not to keep changing state or we will keep triggering 
-                // a rerender.
+        fetch("/fetch_parsed_manifest.php", requestOptions)
+            .then(res => res.json())
+            .then(json => {
+                let imgServiceUri = json.canvases[0].image_info_uri;
                 if (this.state.imageServiceUri != imgServiceUri) {
                     this.setState({ 'imageServiceUri': imgServiceUri }, this.initOpenSeadragon);
                 } else {
                     this.initOpenSeadragon(imgServiceUri);
                 }
-
-
             })
-            .catch((error) => {
-                // FIXME: DISPLAY ERROR IF WE CAN'T GET THE MANIFEST
-                // handle your errors here
-                console.error(error)
-            })
-
-    }
-
-    getImageServiceUriType3Manifest(manifest) {
-
-        // get the first canvas
-        let canvas = null;
-        for (let index = 0; index < manifest.items.length; index++) {
-            canvas = manifest.items[index];
-            if (canvas.type == 'Canvas') break;
-        }
-
-        // canvas has a bunch of items  
-        let page = null;
-        for (let index = 0; index < canvas.items.length; index++) {
-            page = canvas.items[index];
-            //console.log(page);
-            if (page.type == "AnnotationPage") {
-                //console.log(page);
-                for (let j = 0; j < page.items.length; j++) {
-                    const annotation = page.items[j];
-                    if (annotation.type == "Annotation" && annotation.motivation == "Painting") {
-                        // this may be wrong. We may need the service URI but that 
-                        // might not end in info.json 
-                        // ours redirects to the manifest?
-                        //console.log(annotation.body.id);
-
-                        return annotation.body.id;
-
-                    }
-                }
-            }
-        }
-
-    }
-
-    getImageServiceUriType2Manifest(manifest) {
-        // FIXME: IMPLEMENT TYPE 2 !! 
-        return null;
+            .catch(error => console.log(error));
     }
 
     initOpenSeadragon() {

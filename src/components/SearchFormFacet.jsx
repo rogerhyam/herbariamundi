@@ -37,7 +37,12 @@ class SearchFormFacet extends Component {
         let facetValueBeenDisplayed = false;
 
         // add the default/root choice
-        let firstChild = this.props.children[0];
+        let firstChild = null;
+        if (Array.isArray(this.props.children)) {
+            firstChild = this.props.children[0];
+        } else {
+            firstChild = this.props.children;
+        }
         out.push(<option value={firstChild.key} >{firstChild.props.display}</option>);
 
         // If they have selected a letter add that and select it
@@ -110,7 +115,12 @@ class SearchFormFacet extends Component {
     }
 
     getDefaultOptions(facetValue = '_ANY') {
-        return this.props.children.map(op => <option value={op.key} selected={facetValue == op.key} > {op.props.display}</option >);
+        if (Array.isArray(this.props.children)) {
+            return this.props.children.map(op => <option value={op.key} selected={facetValue == op.key} > {op.props.display}</option >);
+        } else {
+            let op = this.props.children;
+            return (<option value={op.key} selected={facetValue == op.key} > {op.props.display}</option >);
+        }
     }
 
 }

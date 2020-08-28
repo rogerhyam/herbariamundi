@@ -29,10 +29,18 @@ $cetaf_ids = array(
     'https:' . $cetaf_id_normative
 );
 
+$out['cetaf_ids'] = $cetaf_ids;
+
 $rdf = new EasyRdf_Graph($cetaf_ids[0]);
 $parser = new \EasyRdf_Parser_RdfXml();
 
-$out['total_rdf_trips_parsed'] = $parser->parse($rdf, $xml_rdf_string, 'rdfxml', '');
+try{
+    $out['total_rdf_trips_parsed'] = $parser->parse($rdf, $xml_rdf_string, 'rdfxml', '');
+}catch(Exception $e){
+    $out['parse_exception'] = true;
+    $out['parse_exception_message'] = $e->getMessage();
+}
+
 
 // OK - we have some RDF - let's extract some fields!!!
 
@@ -42,8 +50,8 @@ $out['total_rdf_trips_parsed'] = $parser->parse($rdf, $xml_rdf_string, 'rdfxml',
 // about.
 $most_props = 0;
 $cetaf_id = null;
+$out['prop_count'] = array();
 foreach($cetaf_ids as $id){
-    $out['prop_count'] = array();
     $resource = $rdf->resource($id);
     $props = $resource->properties();
     $out['prop_count'][$id] = count($props);
@@ -53,7 +61,6 @@ foreach($cetaf_ids as $id){
     }
 }
 
-$out['cetaf_ids'] = $cetaf_ids;
 $out['cetaf_id_used'] = $cetaf_id;
 $resource = $rdf->resource($cetaf_id);
 $props = $resource->propertyUris();

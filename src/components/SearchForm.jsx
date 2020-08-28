@@ -15,7 +15,10 @@ import { searchOffsetChange } from '../redux/actions/searchOffsetChange';
 class SearchForm extends Component {
   constructor(props) {
     super(props);
-    this.state = { searchTriggered: false };
+    this.state = {
+      searchTriggered: false,
+      providerDefaults: [<default key="_ANY" display="Any Provider" />]
+    };
   }
 
   handleTextChange = e => {
@@ -72,6 +75,7 @@ class SearchForm extends Component {
 
   componentDidMount() {
     // we run a search as soon as we load
+    this.loadDefaultProviders();
     this.runSearch();
   }
 
@@ -188,6 +192,35 @@ class SearchForm extends Component {
 
     // flag the fact that we no longer have a query triggered by us (incase it was)
     this.setState({ searchTriggered: false });
+
+  }
+
+  loadDefaultProviders() {
+
+    let providers = [];
+
+    providers.push(<default key="_ANY" display="Any Provider" />);
+
+    // providers to pick between are listed in the db
+
+    const requestOptions = {
+      method: "POST",
+      body: JSON.stringify({}),
+      headers: { Accept: "application/json" }
+    };
+    fetch("/fetch_providers.php", requestOptions)
+      .then(res => res.json())
+      .then(json => {
+
+        if (Array.isArray(json)) {
+          json.map(n => {
+            providers.push(<default key={n} display={n} />);
+          });
+        }
+      })
+      .catch(error => console.log(error));
+
+    this.setState({ 'providerDefaults': providers });
 
   }
 
@@ -550,10 +583,17 @@ class SearchForm extends Component {
                 <default key="YE" display="Yemen" />
                 <default key="ZM" display="Zambia" />
                 <default key="ZW" display="Zimbabwe" />
-
               </SearchFormFacet>
             </Form.Group>
           </Col>
+          <Col>
+            <Form.Group controlId="formSearch.provider">
+              <SearchFormFacet facetName="provider_name_s" facetDisplayName="Provider" >
+                {this.state.providerDefaults}
+              </SearchFormFacet>
+            </Form.Group>
+          </Col>
+
         </Form.Row>
         <Form.Row>
           <Col sm={9}>

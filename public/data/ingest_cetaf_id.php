@@ -9,6 +9,9 @@ require_once('include/curl_functions.php');
 
 // e.g. nohup php ingest_cetaf_id.php -f _e_specimens.php -l 100000 -o 325000  -n true &
 
+// e.g. php ingest_cetaf_id.php -i https://herbarium.bgbm.org/object/B200012402
+// e.g. php ingest_cetaf_id.php -i http://data.rbge.org.uk/herb/E00008781
+
 // ids to be ingested
 $cetaf_ids = array();
 $out = array();
@@ -140,6 +143,9 @@ foreach($cetaf_ids as $cetaf_id){
 
     // xml is good so we can save it.
     // note we use all the versions of the id
+
+    $xml_string = $xml->asXML();
+
     $row_id = db_set_data_for_specimen($cetaf_id, $xml->asXML());
     if($row_id !== false){
         $out[$cetaf_id]['db_row_id'] = $row_id;

@@ -28,7 +28,6 @@ class HerbariaMundi extends Component {
 
   render() {
     return (
-
       <Tabs defaultActiveKey="account" id="mainTabs">
         <Tab eventKey="specimens" title="Herbaria Mundi" disabled={!this.props.user.logged_in}>
           <Container fluid={true} style={{ marginTop: "1em", marginBottom: "1em" }}>
