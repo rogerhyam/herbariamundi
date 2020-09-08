@@ -57,8 +57,3 @@ foreach($response->ids as $cetaf_id){
     }
 
 }
-
-
-// get a list of what has changed since
-
-// work through that list 

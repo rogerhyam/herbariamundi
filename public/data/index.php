@@ -1,7 +1,6 @@
 <?php
   
     require_once('config.php');
-    
 
     $out = new stdClass();
     $out->banana = 'cake';

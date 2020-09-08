@@ -21,23 +21,35 @@ class ManifestWrapper{
         // FIXME we could do some caching here.
         $man =  json_decode(file_get_contents($manifestUri));
         
+        $version = null;
+
         // $man->{"@context"} may be an array or a single value.
-        
+        if(is_array($man->{"@context"})){
+           
+            $versions = preg_grep( '/http:\/\/iiif.io\/api\/presentation\/.+\/context.json/',$man->{"@context"});
+            $versions = array_values($versions); // not interested in keys
 
-        $versions = preg_grep( '/http:\/\/iiif.io\/api\/presentation\/.+\/context.json/',$man->{"@context"});
-        $versions = array_values($versions); // not interested in keys
+            if(count($versions) == 1){
+                $version = $versions[0];
+            }
 
-        if(count($versions) != 1){
-            error_log("Can't detect version of manifest: " .  $manifestUri);
-            return null;
+        }else{
+            $version = $man->{"@context"};
         }
 
-        if($versions[0] == 'http://iiif.io/api/presentation/2/context.json'){
+        
+        if($version == 'http://iiif.io/api/presentation/2/context.json'){
             return new ManifestWrapperV2($man);
         }
-        if($versions[0] == 'http://iiif.io/api/presentation/3/context.json'){
+        if($version == 'http://iiif.io/api/presentation/3/context.json'){
             return new ManifestWrapperV3($man);
         }
+
+        http://iiif.io/api/image/3/context.json
+
+        echo "Can't work out manifest version for $manifestUri\n";
+        print_r($man->{"@context"});
+        return null;
 
     }
 
