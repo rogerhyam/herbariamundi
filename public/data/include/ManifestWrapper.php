@@ -20,6 +20,12 @@ class ManifestWrapper{
 
         // FIXME we could do some caching here.
         $man =  json_decode(file_get_contents($manifestUri));
+
+        // if the json is corrupt or not reachable we give up
+        if(!$man){
+            error_log("Can't fetch or parse manifest: $manifestUri");
+            return null;
+        } 
         
         $version = null;
 
@@ -68,14 +74,18 @@ class ManifestWrapper{
         return $this->manifest->id;
     }
     function getLabel(){
+        if(!isset($this->manifest->label)) return "";
         return $this->manifest->label;
     }
     function getSummary(){
+        if(!isset($this->manifest->summary)) return "";
         return $this->manifest->summary;
     }
 
     function getMetadata(){
-        return $this->manifest->metadata;
+        if(!isset($this->manifest->metadata)) return array();
+        else return $this->manifest->metadata;
+        // overridend in version 2
     }
 
     function getCanvases(){
@@ -133,6 +143,10 @@ class ManifestWrapperV2 extends ManifestWrapper {
 
     function getMetadata(){
         $out = array();
+
+        // do nothing if we have nothing
+        if(!isset($this->manifest->metadata)) return $out;
+
         foreach ($this->manifest->metadata as $item) {
             $out[] = array(
                 'label' => array(
