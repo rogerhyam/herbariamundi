@@ -52,6 +52,12 @@ const initialState = {
     ownTags: [],
     othersTags: [],
     loading: false
+  },
+  dets: {
+    forSpecimenId: null,
+    ownDets: [],
+    othersDets: [],
+    loading: false
   }
 };
 
@@ -280,6 +286,61 @@ const rootReducer = (state = initialState, action) => {
         }
       };
 
+ // SAVE_DET actions
+ case ActionTypes.SAVE_DET_BEGIN:
+  case ActionTypes.DELETE_DET_BEGIN:
+  case ActionTypes.FETCH_DETS_BEGIN:
+    return {
+      ...state,
+      dets: {
+        ...state.dets,
+        forSpecimenId: action.specimenId,
+        ownDets: [],
+        othersDets: [],
+        loading: true,
+        error: false,
+      }
+    };
+  case ActionTypes.SAVE_DET_SUCCESS:
+  case ActionTypes.DELETE_DET_SUCCESS:
+    return {
+      ...state,
+      dets: {
+        ...state.dets,
+        forSpecimenId: action.fullResponse.specimenId,
+        ownDets: action.fullResponse.dets.ownDets,
+        othersDets: action.fullResponse.dets.othersDets,
+        loading: false,
+        error: false
+      }
+    };
+  case ActionTypes.SAVE_DET_FAILURE:
+  case ActionTypes.FETCH_DETS_FAILURE:
+  case ActionTypes.DELETE_DET_FAILURE:
+    return {
+      ...state,
+      dets: {
+        ...state.dets,
+        forSpecimenId: [],
+        ownDets: [],
+        othersDets: [],
+        loading: false,
+        error: action.payload.error
+      }
+    };
+
+    case ActionTypes.FETCH_DETS_SUCCESS:
+      return {
+        ...state,
+        dets: {
+          ...state.dets,
+          forSpecimenId: action.fullResponse.fetched.specimenId,
+          ownDets: action.fullResponse.dets.ownDets,
+          othersDets: action.fullResponse.dets.othersDets,
+          loading: false,
+          error: false
+        }
+      };
 
     default:
       return state;

@@ -154,4 +154,30 @@ function db_is_failed_cetaf_id($cetaf_id){
     else return false;
 }
 
+function db_enqueue_specimen_for_indexing($specimen_db_id){
+
+    global $mysqli;
+    $stmt = $mysqli->prepare("UPDATE specimen SET indexing_requested = now() WHERE id = ?");
+    $stmt->bind_param('i', $specimen_db_id);
+    $stmt->execute();
+    /*
+    ALTER TABLE `mundi`.`specimen` 
+    ADD COLUMN `indexing_requested` DATETIME NULL AFTER `iiif_status`;
+    */
+
+}
+
+function db_dequeue_specimen_for_indexing($specimen_db_id){
+
+    global $mysqli;
+    $stmt = $mysqli->prepare("UPDATE specimen SET indexing_requested = NULL WHERE id = ?");
+    $stmt->bind_param('i', $specimen_db_id);
+    $stmt->execute();
+    /*
+    ALTER TABLE `mundi`.`specimen` 
+    ADD COLUMN `indexing_requested` DATETIME NULL AFTER `iiif_status`;
+    */
+
+}
+
 ?>

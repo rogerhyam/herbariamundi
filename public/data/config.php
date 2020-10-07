@@ -9,8 +9,7 @@ require('vendor/autoload.php');
 // db credentials are kept here.
 require_once('../../mundi_secret.php');
 
-//define('THUMBNAIL_CACHE', 'thumbnail_cache/'); // live
-define('THUMBNAIL_CACHE', 'thumbnail_cache/'); // dev
+define('THUMBNAIL_CACHE', 'thumbnail_cache/');
 
 // these are defined once here but should never change
 // even in dev environment

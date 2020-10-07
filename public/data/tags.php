@@ -15,7 +15,7 @@ switch ($_GET['verb']) {
         $out['specimenDbId'] = $payload->specimenDbId;
         $out['saved'] = save_tag($payload->tagText, $payload->specimenId, $payload->specimenDbId, $user_id);
         $out['tags'] = fetch_tags($payload->specimenId, $payload->specimenDbId, $user_id);
-        update_solr($payload->specimenId, $payload->tagText, false);
+        update_solr($payload->specimenId, $payload->specimenDbId, $payload->tagText, false);
         break;
 
     case 'delete':
@@ -23,7 +23,7 @@ switch ($_GET['verb']) {
         $out['specimenDbId'] = $payload->specimenDbId;
         $out['deleted'] = delete_tag($payload->tagId, $payload->specimenId, $payload->specimenDbId, $user_id);
         $out['tags'] = fetch_tags($payload->specimenId, $payload->specimenDbId, $user_id);
-        update_solr($payload->specimenId, $payload->tagText, true);
+        update_solr($payload->specimenId, $payload->specimenDbId, $payload->tagText, true);
         break;
     
     case 'fetch':
@@ -45,21 +45,22 @@ switch ($_GET['verb']) {
 
 }
 
-function update_solr($specimen_id, $tag_text, $remove = false){
+function update_solr($specimen_id, $specimen_db_id, $tag_text, $remove = false){
 
-    $doc = array();
-    $doc['id'] = $specimen_id;
-
-    if(!$remove){
-        $doc['tags_ss'] = array( "add" => array($tag_text));
+    if($remove){
+        // we can't remove instantly because we don't 
+        // know is someone else hasn't added the same tag
+        // so we just queue it for re-indexing
+        db_enqueue_specimen_for_indexing($specimen_db_id);
     }else{
-        $doc['tags_ss'] = array( "remove" => array($tag_text));
+        // if we are adding we can do it instantly
+        $doc = array();
+        $doc['id'] = $specimen_id;
+        $doc['tags_ss'] = array( "add" => array($tag_text));
+        solr_add_docs(array($doc));
+        solr_commit();
     }
-    
-    solr_add_docs(array($doc));
-    solr_commit();
-
-    
+  
         /*
     
         {"id":"mydoc",

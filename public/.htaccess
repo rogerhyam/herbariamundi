@@ -1,6 +1,7 @@
 RewriteEngine On
 
 # all .php files are in the data directory
+RewriteCond %{REQUEST_URI} !^/fm.php
 RewriteRule ([^\.]+).php data/$1.php [END]
 
 

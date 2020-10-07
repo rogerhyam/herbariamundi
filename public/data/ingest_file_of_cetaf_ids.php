@@ -59,7 +59,7 @@ foreach($lines as $line){
         continue;
     } 
 
-    if($limit != -1 && $limit_count > $limit){
+    if($limit != -1 && $limit_count >= $limit){
         echo "\nReached limit of $limit \n";
         break; 
     }else{
@@ -67,7 +67,13 @@ foreach($lines as $line){
     }
 
     $cetaf_id = trim($line);
-    
+
+    // clunge for underscores in BGBM ids
+    if(preg_match('/\/\/herbarium.bgbm.org\/.*_.*/', $cetaf_id)){
+        $cetaf_id = str_replace('_', '', $cetaf_id);
+        echo "Removed underscore from BGBM id\n";
+    }
+
     echo "$line_count : $cetaf_id \n";
     
     $sp = Specimen::createSpecimenFromUri($cetaf_id);

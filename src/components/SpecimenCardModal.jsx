@@ -9,9 +9,11 @@ import Row from "react-bootstrap/Row";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import SpecimenCardModalTags from './SpecimenCardModalTags';
+import SpecimenCardModalDets from './SpecimenCardModalDets';
 import { showSpecimenModal } from "../redux/actions/showSpecimenModal";
 import { addSpecimen } from "../redux/actions/workbenchActions";
 import { fetchTags } from "../redux/actions/fetchTags";
+import { fetchDets } from "../redux/actions/fetchDets";
 import OpenSeadragon from 'openseadragon';
 
 class SpecimenCardModal extends Component {
@@ -35,6 +37,10 @@ class SpecimenCardModal extends Component {
 
         // update the tags 
         this.props.fetchTags(this.props.specimen.id, this.props.specimen.db_id_i);
+
+        // update the tags 
+        this.props.fetchDets(this.props.specimen.id, this.props.specimen.db_id_i);
+
 
     }
 
@@ -123,6 +129,9 @@ class SpecimenCardModal extends Component {
                             <Tab eventKey="tags" title="Tags">
                                 <SpecimenCardModalTags specimen={this.props.specimen} />
                             </Tab>
+                            <Tab eventKey="dets" title="Dets">
+                                <SpecimenCardModalDets specimen={this.props.specimen} />
+                            </Tab>
                         </Tabs>
                     </Modal.Body>
                     <Modal.Footer>
@@ -149,4 +158,4 @@ const mapStateToProps = state => {
         y: state.specimens.modalSpecimen.y
     };
 };
-export default connect(mapStateToProps, { showSpecimenModal, addSpecimen, fetchTags })(SpecimenCardModal);
+export default connect(mapStateToProps, { showSpecimenModal, addSpecimen, fetchTags, fetchDets })(SpecimenCardModal);

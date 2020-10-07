@@ -166,7 +166,7 @@ class SearchForm extends Component {
                 break;
               default:
                 // by default add it as a filter
-                query.filter.push(f + ":" + this.props.facets[f]);
+                query.filter.push(`${f}:"${this.props.facets[f]}"`);
                 break;
             }
 

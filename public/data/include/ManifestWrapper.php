@@ -18,8 +18,21 @@ class ManifestWrapper{
         // load the manifest from the URL
         //  e.g. https://iiif.rbge.org.uk/herb/iiif/E00001237/manifest
 
-        // FIXME we could do some caching here.
-        $man =  json_decode(file_get_contents($manifestUri));
+        // we keep a cache of manifests to save repeat calling
+        $hash = hash('md5', $manifestUri);
+        $parts = parse_url($manifestUri);
+        $cache_dir = THUMBNAIL_CACHE . 'manifests/' . $parts['host'] . '/' . substr($hash, 0,1) . '/' .substr($hash, 1,1);
+        $cache_path =  $cache_dir . '/' . $hash . '.json';
+
+        // if it isn't in the cache get it from remote and put it in the cache
+        if(!file_exists($cache_path)){
+            $content = file_get_contents($manifestUri);
+            @mkdir($cache_dir, 0777, true);
+            file_put_contents($cache_path, $content);
+        }
+
+        // load it from the cache
+        $man =  json_decode(file_get_contents($cache_path));
 
         // if the json is corrupt or not reachable we give up
         if(!$man){

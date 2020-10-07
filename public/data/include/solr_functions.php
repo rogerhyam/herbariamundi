@@ -64,7 +64,7 @@ function solr_index_specimen_by_id($row_id){
 
     $xml_string = $specimen_data['raw'];
 
-     // clunge for BGBM as of July 2020 - can probably be removed if they fixed their typo
+    // clunge for BGBM as of July 2020 - can probably be removed if they fixed their typo
     $xml_string = str_replace("//herbarium.bgbm.org//B", '//herbarium.bgbm.org/object/B', $xml_string);
 
     $solr_doc = parse_rdf_xml($xml_string, $specimen_data['cetaf_id_normative']);
@@ -108,17 +108,29 @@ function solr_index_specimen_by_id($row_id){
 
     if(!isset($solr_doc->iiif_manifest_uri_ss[0])){
         error_log("No manifest URI found in RDF so giving up on indexing $row_id" );
-        // print_r($solr_doc);
+        //print_r($solr_doc);
         db_set_iiif_status($row_id, 'NOT_FOUND');
         return null;
     }
 
-    // flag the fact that we have a IIIF Manifest
-    db_set_iiif_status($row_id, 'FOUND');
     $wrapper = ManifestWrapper::getWrapper($solr_doc->iiif_manifest_uri_ss[0]);
+
+    // if the wrapper couldn't parse it will be null
+    if(!$wrapper){
+        error_log('Problems creating manifest wrapper for: ' . $solr_doc->iiif_manifest_uri_ss[0]);
+        return null; // get out of here 
+    } 
+
     $thumbnail_remote_uri = $wrapper->getThumbnailUri(400);
     
-    if(!$thumbnail_remote_uri) return null; // get out of here as not got a thumbnail link.
+    if(!$thumbnail_remote_uri){
+        error_log("Couldn't extract thumbnail uri from IIIF manifest ". $solr_doc->iiif_manifest_uri_ss[0]);
+        return null; // get out of here 
+    } 
+
+    // flag the fact that we have a IIIF Manifest - because we got the uri out of it
+    db_set_iiif_status($row_id, 'FOUND');
+
     $solr_doc->thumbnail_remote_uri_s = $thumbnail_remote_uri;
 
     // does the thumbnail alread exist?
@@ -147,9 +159,56 @@ function solr_index_specimen_by_id($row_id){
     }
 
 
-    // FIXME - add any tags we have in the database for this specimen
-    // if it has been in the system before it may have aquired them
-    // ditto determinations
+    // tags in db for this specimen
+    $solr_doc->tags_ss = array();
+    $result = $mysqli->query("SELECT tag_text FROM tag_placement as tp join tag as t on t.id = tp.tag_id where tp.specimen_id = $row_id");
+    if($result){
+        while($row = $result->fetch_assoc()){
+            $solr_doc->tags_ss[] = $row['tag_text'];
+        }
+    }else{
+        error_log("Trouble getting tags for specimen $row_id");
+        error_log($mysqli->error);
+    }
+    
+
+    // Add any determinations
+    $solr_doc->wfo_taxon_ss = array();
+    $solr_doc->wfo_taxon_group_ss = array();
+    $result = $mysqli->query("SELECT * FROM determination where specimen_id = $row_id");
+    if($result){
+        while($row = $result->fetch_assoc()){
+            $wfo_item = json_decode($row['wfo_raw']);
+            if(is_object($wfo_item)){
+                $solr_doc->wfo_taxon_ss[] = $wfo_item->id;
+                $solr_doc->wfo_taxon_group_ss[] = $wfo_item->taxonID_s;
+                
+                // family
+                if(isset($wfo_item->family_s)){
+                    $solr_doc->family_ss[] =  $wfo_item->family_s;
+                    $solr_doc->family_ss = array_unique($solr_doc->family_ss);
+                }
+
+                // genus
+                if(isset($wfo_item->genus_s)){
+                    $solr_doc->genus_ss[] = $wfo_item->genus_s;
+                    $solr_doc->genus_ss = array_unique($solr_doc->genus_ss);
+                }
+
+                // species
+                if(isset($wfo_item->specificEpithet_s)){
+                    $solr_doc->specific_epithet_ss[] = $wfo_item->specificEpithet_s;
+                    $solr_doc->specific_epithet_ss = array_unique($solr_doc->specific_epithet_ss);
+                } 
+            }
+        }
+    }else{
+        error_log("Trouble getting dets for specimen $row_id");
+        error_log($mysqli->error);
+    }
+
+    // make sure the specimen isn't queued any more
+    db_dequeue_specimen_for_indexing($row_id);
 
     // finally timestamp it 
     $solr_doc->last_indexed_dt = 'NOW';
@@ -183,6 +242,8 @@ function parse_rdf_xml($xml, $cetaf_id_normative){
 
     curl_setopt($ch, CURLOPT_POSTFIELDS, $post_params);
     $response = run_curl_request($ch);
+
+    // print_r($response);
 
     $parsed_rdf = json_decode($response->body);
 
