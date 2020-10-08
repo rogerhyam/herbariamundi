@@ -7,7 +7,7 @@ const initialState = {
   user: false,
   specimens: {
     byId: {},
-    workbench: {
+    compare: {
       specimenIds: []
     },
     browser: {
@@ -204,21 +204,6 @@ const rootReducer = (state = initialState, action) => {
           }
         }
       };
-    case ActionTypes.WORKBENCH_ADD_SPECIMEN:
-      state.specimens.workbench.specimenIds.push(action.specimenId);
-      // de duplicate
-      state.specimens.workbench.specimenIds = [
-        ...new Set(state.specimens.workbench.specimenIds)
-      ];
-      return { ...state };
-
-    case ActionTypes.WORKBENCH_REMOVE_SPECIMEN:
-      state.specimens.workbench.specimenIds = state.specimens.workbench.specimenIds.filter(
-        id => {
-          return id !== action.specimenId;
-        }
-      );
-      return { ...state };
 
     case ActionTypes.SHOW_SPECIMENS:
       state.specimens.browser = { ...state.specimens.browser, ...action };

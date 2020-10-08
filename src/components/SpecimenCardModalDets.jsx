@@ -34,7 +34,7 @@ class SpecimenCardModalDets extends Component {
         });
 
         // change the items in the dropdown to reflect it
-        let url = new URL('http://wfo-solr.rbge.info/suggest.php'); // FIXME: Move this to config
+        let url = new URL('https://wfo-solr.rbge.info/suggest.php'); // FIXME: Move this to config
         url.search = new URLSearchParams({'q': value}).toString();
         const requestOptions = {
             method: "GET",
@@ -165,7 +165,7 @@ class SpecimenCardModalDets extends Component {
 
                             inputProps={{ 
                                 style: { width: '100%' },
-                                placeholder: 'Type a tag',
+                                placeholder: 'Genus species',
                                 onKeyPress: (e) => { if(e.key === "Enter")this.handleAddTag() }
                             }}
                         />
