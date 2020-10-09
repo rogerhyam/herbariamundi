@@ -126,9 +126,9 @@ class SpecimenCardModalDets extends Component {
                 <Row >
                     <Col style={{ marginTop: "1em" }}>
                         <p>
-                            Here you can create a determination for a specimen.
-                            You can associate it with any accepted or unchecked taxon in the current version of 
+                            Here you can create a determination for the specimen by associating it with any accepted or unchecked taxon in the current version of 
                             the <a href="http://www.worldfloraonline.org/">World Flora Online</a>.
+                            Try typing the first few letters of the Genus and specific epithet then pick from the dropdown list. The search is case sensitive.
                         </p>
                         <hr />
                     </Col>

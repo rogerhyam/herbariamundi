@@ -27,7 +27,7 @@ class HerbariaMundi extends Component {
   render() {
     return (
 
-<Tab.Container  defaultActiveKey="compare">
+<Tab.Container  defaultActiveKey="specimens">
 <div id="tab-wrapper" style={{height: '100%', display: "flex", flexDirection: "column", padding: "0px" }}>
 <Row noGutters={true}>
   <Col>

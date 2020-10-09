@@ -327,8 +327,24 @@ const rootReducer = (state = initialState, action) => {
         }
       };
 
+    // compare specimens
+    // simply copy specimens in browser to the compare list
+    case ActionTypes.ADD_COMPARE_SPECIMENS:
+      return{
+        ...state,
+        specimens: {
+          ...state.specimens,
+          compare: {
+            specimenIds: state.specimens.browser.specimenIds
+          }
+        }
+      }
+
     default:
       return state;
   }
+
+
+
 };
 export default rootReducer;

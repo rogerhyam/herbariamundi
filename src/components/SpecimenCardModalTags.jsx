@@ -89,11 +89,10 @@ class SpecimenCardModalTags extends Component {
                 <Row >
                     <Col style={{ marginTop: "1em" }}>
                         <p>
-                            Here you can add tags to the specimen to help sort it easier to find.
+                            Here you can add tags to the specimen to build sets of specimens.
                             You could add the name of a project or sampling site for example.
                             Just start typing a tag and existing tags will be suggested.
-                            Tags must be lowercase with no spaces or hashes(#) but they can have other punctuation.
-                            
+                            Tags must be lowercase letters, numbers and hyphens. Other characters will be replaced as you type.
                         </p>
                         <hr />
                     </Col>

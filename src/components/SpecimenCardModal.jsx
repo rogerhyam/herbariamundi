@@ -112,7 +112,7 @@ class SpecimenCardModal extends Component {
                         <Modal.Title>Quick View</Modal.Title>
                     </Modal.Header>
                     <Modal.Body >
-                        <Tabs defaultActiveKey="quick-image" id="quickview-tabs">
+                        <Tabs defaultActiveKey={this.props.defaultTab} id="quickview-tabs">
                             <Tab eventKey="quick-image" title="Image">
 
                                 <Container fluid={true}>
@@ -155,7 +155,8 @@ const mapStateToProps = state => {
         modalVisible: state.specimens.modalSpecimen ? true : false,
         specimen: state.specimens.byId[state.specimens.modalSpecimen.id],
         x: state.specimens.modalSpecimen.x,
-        y: state.specimens.modalSpecimen.y
+        y: state.specimens.modalSpecimen.y,
+        defaultTab: state.specimens.modalSpecimen.tab
     };
 };
 export default connect(mapStateToProps, { showSpecimenModal, addSpecimen, fetchTags, fetchDets })(SpecimenCardModal);

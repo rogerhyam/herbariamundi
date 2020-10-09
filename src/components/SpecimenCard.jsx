@@ -31,7 +31,8 @@ class SpecimenCard extends Component {
       {
         id: this.props.specimen.id,
         x: osdX,
-        y: osdY
+        y: osdY,
+        tab: 'quick-image'
       }
     );
   }

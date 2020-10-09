@@ -4,13 +4,14 @@ import Form from "react-bootstrap/Form";
 import SearchFormFacet from "./SearchFormFacet";
 import SearchFormMessage from "./SearchFormMessage";
 import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
-import ButtonToolbar from "react-bootstrap/ButtonToolbar";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
 import Col from "react-bootstrap/Col";
 import { fetchSpecimens } from "../redux/actions/fetchSpecimensActions";
 import { searchTextChange } from '../redux/actions/searchTextChange';
 import { searchReset } from '../redux/actions/searchReset';
 import { searchOffsetChange } from '../redux/actions/searchOffsetChange';
+import { addCompareSpecimens } from '../redux/actions/addCompareSpecimens';
 
 class SearchForm extends Component {
   constructor(props) {
@@ -222,6 +223,18 @@ class SearchForm extends Component {
 
     this.setState({ 'providerDefaults': providers });
 
+  }
+
+  handleCompare = e =>{
+    this.props.addCompareSpecimens();
+  }
+
+  getComparePopover(name) {
+    return (
+      <Popover>
+        <Popover.Content style={{ fontSize: "80%" }}>Adds the displayed specimens to the righthand panel of the compare tab.</Popover.Content>
+      </Popover>
+    );
   }
 
   render() {
@@ -607,18 +620,23 @@ class SearchForm extends Component {
             </Form.Group>
           </Col>
           <Col>
-            <ButtonToolbar>
-              <ButtonGroup className="mr-2" >
                 <Button variant="primary" type="submit" onClick={this.handleSubmit}>
                   Search
                </Button>
-              </ButtonGroup>
-              <ButtonGroup className="mr-2" >
+               {' '}
                 <Button variant="secondary" onClick={this.handleReset}>
                   Reset
               </Button>
-              </ButtonGroup>
-            </ButtonToolbar>
+              {' '}
+              <OverlayTrigger
+              trigger={["hover", "click"]}
+              placement="auto"
+              overlay={this.getComparePopover()}
+            >
+                <Button variant="secondary" onClick={this.handleCompare}>
+                  Compare
+              </Button>
+              </OverlayTrigger>
           </Col>
         </Form.Row>
         <Form.Row>
@@ -640,4 +658,4 @@ const mapStateToProps = state => {
     offset: search.current.offset
   };
 };
-export default connect(mapStateToProps, { fetchSpecimens, searchTextChange, searchReset, searchOffsetChange })(SearchForm);
+export default connect(mapStateToProps, { fetchSpecimens, searchTextChange, searchReset, searchOffsetChange, addCompareSpecimens })(SearchForm);

@@ -15,12 +15,12 @@ class Compare extends Component {
         return (
             <Row noGutters={true} fluid={true} className="h-100">
                 <Col style={{borderRight: "solid 1px gray", marginRight: "0.5em"}}>
-                    <ComparePanel name="left" specimenIds={this.props.searchSpecimenIds}>
+                    <ComparePanel loupeId="compare-panel-left" specimenIds={this.props.searchSpecimenIds}>
                         Specimens loaded from last search on specimens tab.
                     </ComparePanel>
                 </Col>
                 <Col style={{borderLeft: "solid 1px gray", marginLeft: "0.5em"}}>
-                    <ComparePanel name="right" specimenIds={this.props.compareSpecimenIds} >
+                    <ComparePanel loupeId="compare-panel-right" specimenIds={this.props.compareSpecimenIds} >
                         Specimens loaded by pressing "compare" button on specimens tab.
                     </ComparePanel>
                 </Col>
