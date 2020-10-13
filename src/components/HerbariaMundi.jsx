@@ -25,18 +25,21 @@ class HerbariaMundi extends Component {
   }
 
   render() {
+    console.log(this.props.user); 
     return (
 
-<Tab.Container  defaultActiveKey="specimens">
+
+
+<Tab.Container  defaultActiveKey="account">
 <div id="tab-wrapper" style={{height: '100%', display: "flex", flexDirection: "column", padding: "0px" }}>
 <Row noGutters={true}>
   <Col>
     <Nav variant="tabs">
       <Nav.Item>
-        <Nav.Link eventKey="specimens" >Specimens</Nav.Link>
+        <Nav.Link eventKey="specimens" disabled={!this.props.user.logged_in} >Specimens</Nav.Link>
       </Nav.Item>
       <Nav.Item>
-        <Nav.Link eventKey="compare">Compare</Nav.Link>
+        <Nav.Link eventKey="compare" disabled={!this.props.user.logged_in} >Compare</Nav.Link>
       </Nav.Item>
       <Nav.Item>
         <Nav.Link eventKey="about">About</Nav.Link>

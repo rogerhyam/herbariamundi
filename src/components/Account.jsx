@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import Container from "react-bootstrap/Container";
 import Card from "react-bootstrap/Card";
 import OrcidCard from "./OrcidCard";
+import AccountMyData from "./AccountMyData";
 
 
 class Account extends Component {
@@ -12,9 +13,11 @@ class Account extends Component {
     }
 
     render() {
+
         return (
           <Container style={{ paddingTop: "1em" }}>
             <OrcidCard />
+            <AccountMyData />
             <Card style={{ marginTop: "1em" }}>
               <Card.Header>Privacy and Safeguarding</Card.Header>
               <Card.Body>
@@ -41,8 +44,8 @@ class Account extends Component {
 
 }
 const mapStateToProps = state => {
-    return {
-       
-    };
+  return {
+    user: state.user
+  };
 };
 export default connect(mapStateToProps, {})(Account);

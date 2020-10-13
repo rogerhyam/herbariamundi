@@ -133,7 +133,7 @@ class OrcidCard extends Component {
                         <ul>
                             <li>Give credit for contributions from users.</li>
                             <li>Report on usage to contributing institutions.</li>
-                            <li>Manage mischief and misuse.</li>
+                            <li>Manage mischief.</li>
                         </ul>
                         <p>
                             Please sign in using this button.
